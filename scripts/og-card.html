@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: fallback; src: local("Georgia"); }
+  body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  .card {
+    width: 1200px; height: 630px; position: relative;
+    background: #0f1418;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 18% 0%, rgba(0,133,122,0.16), transparent),
+      radial-gradient(ellipse 60% 50% at 92% 100%, rgba(245,176,67,0.10), transparent);
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    color: #ecf1f0;
+  }
+  svg.map { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); height: 540px; }
+  .content { position: absolute; left: 72px; top: 50%; transform: translateY(-50%); max-width: 640px; }
+  .kicker { font-size: 20px; letter-spacing: 0.26em; text-transform: uppercase; color: #f5b043; font-weight: 700; }
+  h1 { font-family: Georgia, serif; font-size: 96px; line-height: 1.0; margin: 22px 0 26px; font-weight: 600; }
+  p { font-size: 27px; line-height: 1.45; color: #a9b6b4; margin: 0; }
+  .foot { position: absolute; left: 72px; bottom: 44px; font-size: 19px; color: #7f8c8b; }
+</style>
+</head>
+<body>
+<div class="card">
+  <svg class="map" viewBox="0 0 560 620">
+    <path id="outline" fill="#15202700" stroke="#3d5a58" stroke-width="3"/>
+  </svg>
+  <div class="content">
+    <div class="kicker">Transportation Tomorrow Survey</div>
+    <h1>Durham<br>in Motion</h1>
+    <p>How Durham Region moves on a typical weekday — and how that has changed since 1986.</p>
+  </div>
+  <div class="foot">691,893 people · 1.44 million weekday trips · 8 communities</div>
+</div>
+<script>
+  fetch('/data/durham-outline.geojson').then(r => r.json()).then(gj => {
+    const geom = gj.geometry;
+    const rings = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+    const flat = rings.flat();
+    let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    flat.forEach(r => r.forEach(([x, y]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }));
+    const W = 560, H = 620, pad = 10;
+    const k = Math.cos(((minY + maxY) / 2) * Math.PI / 180);
+    const s = Math.min((W - pad * 2) / ((maxX - minX) * k), (H - pad * 2) / (maxY - minY));
+    const ox = pad + ((W - pad * 2) - (maxX - minX) * k * s) / 2;
+    const oy = pad + ((H - pad * 2) - (maxY - minY) * s) / 2;
+    const d = flat.map(ring => ring.map(([lon, lat]) => `${ox + (lon - minX) * k * s},${oy + (maxY - lat) * s}`).join(' ')).map(pts => 'M' + pts + 'Z').join(' ');
+    document.getElementById('outline').setAttribute('d', d);
+    document.title = 'ready';
+  });
+</script>
+</body>
+</html>

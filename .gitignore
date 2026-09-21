@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# QA artifacts
+shots/
+.playwright-mcp/
+
+# Raw survey downloads stay local (re-fetchable; checksums in data/intermediate)
+data/raw/
+data/intermediate/
+
+# Environment / OS
+.env*
+.DS_Store

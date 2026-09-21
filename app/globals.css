@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  /* Typography */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* Paper & ink */
+  --color-paper: #faf7f1;
+  --color-paper-dim: #f1ece2;
+  --color-ink: #1c2024;
+  --color-ink-soft: #4d545c;
+  --color-ink-faint: #8a9099;
+  --color-night: #0f1418;
+  --color-night-soft: #161d23;
+  --color-night-line: #2a333b;
+  --color-chalk: #ecf1f0;
+  --color-chalk-dim: #a9b6b4;
+
+  /* Data palette (modes) */
+  --color-auto-driver: #33567d;
+  --color-auto-passenger: #a3bfd6;
+  --color-transit: #00857a;
+  --color-walk: #f5b043;
+  --color-bicycle: #cc4b37;
+  --color-school-bus: #8a6fb5;
+  --color-other-misc: #98938a;
+
+  /* Accents */
+  --color-accent: #c2502e;
+  --color-accent-soft: #e5b9a8;
+  --color-line: #ddd5c7;
+}
+
+:root {
+  color-scheme: light dark;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+body {
+  @apply bg-paper text-ink font-sans antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #f5b04366;
+}
+
+/* Visible, consistent focus */
+:focus-visible {
+  outline: 3px solid #c2502e;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@layer components {
+  .prose-story {
+    @apply max-w-[68ch] text-[1.0625rem] leading-relaxed text-ink-soft;
+  }
+  .prose-story strong {
+    @apply font-semibold text-ink;
+  }
+  .chapter-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-accent;
+  }
+  .dark-section .chapter-kicker {
+    @apply text-walk;
+  }
+}
+
+/* Dark immersive sections */
+.dark-section {
+  @apply bg-night text-chalk;
+}
+.dark-section .prose-story {
+  @apply text-chalk-dim;
+}
+.dark-section .prose-story strong {
+  @apply text-chalk;
+}
+
+/* Subtle texture for dark sections */
+.dark-textured {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0, 133, 122, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(245, 176, 67, 0.05), transparent);
+}
+
+/* Chart tooltip */
+.viz-tooltip {
+  @apply pointer-events-none absolute z-20 max-w-[16rem] rounded-md bg-ink px-3 py-2 text-xs leading-snug text-paper opacity-0 shadow-lg transition-opacity duration-150;
+}
+.viz-tooltip-host:hover .viz-tooltip,
+.viz-tooltip-host:focus-visible .viz-tooltip,
+.viz-tooltip-host:focus-within .viz-tooltip {
+  @apply opacity-100;
+}
+
+/* MapLibre tweaks */
+.maplibregl-popup-content {
+  @apply rounded-md bg-ink px-3 py-2 text-xs leading-snug text-paper shadow-lg;
+}
+.maplibregl-popup-tip {
+  border-top-color: #1c2024 !important;
+  border-bottom-color: #1c2024 !important;
+}
+.maplibregl-ctrl-group {
+  border-radius: 6px !important;
+}
+
+/* Hero animations (one-shot draw + gentle pulse; disabled by reduced motion) */
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.9);
+    opacity: 0.45;
+  }
+}
+@keyframes fadein {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes risein {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Skip link */
+.skip-link {
+  @apply absolute left-4 top-[-100px] z-50 rounded bg-accent px-4 py-2 text-sm font-semibold text-paper transition-[top];
+}
+.skip-link:focus {
+  top: 1rem;
+}

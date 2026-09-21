@@ -1,0 +1,201 @@
+{
+  "generatedAt": "2026-09-21T01:04:16.915Z",
+  "findings": [
+    {
+      "id": "population-growth",
+      "headline": "Durham's surveyed population grew from 317,886 in 1986 to 691,893 in 2022 (118%).",
+      "metric": "persons_total",
+      "from": "1986: 317,886",
+      "to": "2022: 691,893",
+      "change": "118%",
+      "comparability": "strong",
+      "notes": "Household survey population estimates, all ages."
+    },
+    {
+      "id": "work-at-home",
+      "headline": "Working at home went from 4.9% of employed residents in 1991 to 14.1% in 2022.",
+      "metric": "work_at_home_share_of_employed",
+      "from": "1991: 4.9%",
+      "to": "2022: 14.1%",
+      "change": "+9.2 pp",
+      "comparability": "strong",
+      "notes": "Full-time + part-time usually-work-at-home as a share of employed persons. 1986 omitted (suppressed part-time-at-home cell). 2022 reflects post-2020 hybrid work."
+    },
+    {
+      "id": "vehicles-per-household",
+      "headline": "The average Durham household owned 1.71 vehicles in 1986; today it owns 1.81.",
+      "metric": "avg_vehicles_per_household",
+      "from": "1986: 1.71",
+      "to": "2022: 1.81",
+      "change": "+0.11",
+      "comparability": "strong",
+      "notes": "Top-coded '5 or more' counted as 5, so means are slightly low; applied uniformly."
+    },
+    {
+      "id": "transit_share",
+      "headline": "Transit share of weekday trips: highest Ajax (5.0%), lowest Uxbridge (0.5%).",
+      "metric": "transit_share",
+      "value": "highest Ajax 5.0%",
+      "durham": "3.5%",
+      "difference": "5.0% vs 0.5%",
+      "comparability": "within-2022",
+      "notes": "Share of resident weekday trips by local transit + GO (2022).",
+      "ranking": [
+        {
+          "place": "Ajax",
+          "value": "5.0%"
+        },
+        {
+          "place": "Pickering",
+          "value": "4.3%"
+        },
+        {
+          "place": "Oshawa",
+          "value": "4.0%"
+        },
+        {
+          "place": "Whitby",
+          "value": "4.0%"
+        },
+        {
+          "place": "Clarington",
+          "value": "1.5%"
+        },
+        {
+          "place": "Scugog",
+          "value": "0.5%"
+        },
+        {
+          "place": "Uxbridge",
+          "value": "0.5%"
+        }
+      ]
+    },
+    {
+      "id": "zero_vehicle_share",
+      "headline": "Households with no vehicle: highest Oshawa (8.1%), lowest Clarington (2.9%).",
+      "metric": "zero_vehicle_share",
+      "value": "highest Oshawa 8.1%",
+      "durham": "4.9%",
+      "difference": "8.1% vs 2.9%",
+      "comparability": "within-2022",
+      "notes": "Share of households reporting zero vehicles (2022)."
+    },
+    {
+      "id": "walk_share",
+      "headline": "Walking share of weekday trips: highest Ajax (10.6%), lowest Scugog (5.4%).",
+      "metric": "walk_share",
+      "value": "highest Ajax 10.6%",
+      "durham": "8.3%",
+      "difference": "10.6% vs 5.4%",
+      "comparability": "within-2022",
+      "notes": "Share of resident weekday trips on foot (2022)."
+    },
+    {
+      "id": "toronto_commute_share",
+      "headline": "Workers commuting to Toronto: highest Pickering (43.5%), lowest Scugog (11.7%).",
+      "metric": "toronto_commute_share",
+      "value": "highest Pickering 43.5%",
+      "durham": "27.5%",
+      "difference": "43.5% vs 11.7%",
+      "comparability": "within-2022",
+      "notes": "Usual place of work in Toronto, share of workers with a usual place inside the survey area (2022)."
+    },
+    {
+      "id": "vehicles_per_hh",
+      "headline": "Vehicles per household: highest Uxbridge (2.10), lowest Oshawa (1.60).",
+      "metric": "vehicles_per_hh",
+      "value": "highest Uxbridge 2.10",
+      "durham": "1.81",
+      "difference": "2.10 vs 1.60",
+      "comparability": "within-2022",
+      "notes": "Mean vehicles per household (2022), top-coded at 5.",
+      "ranking": [
+        {
+          "place": "Uxbridge",
+          "value": "2.10"
+        },
+        {
+          "place": "Clarington",
+          "value": "1.99"
+        },
+        {
+          "place": "Pickering",
+          "value": "1.85"
+        },
+        {
+          "place": "Whitby",
+          "value": "1.83"
+        },
+        {
+          "place": "Ajax",
+          "value": "1.81"
+        },
+        {
+          "place": "Oshawa",
+          "value": "1.60"
+        }
+      ]
+    },
+    {
+      "id": "mode-mix-2022",
+      "headline": "64.6% of weekday trips by Durham residents are made as the driver of a private car; 83.2% are made by car, driving or riding.",
+      "metric": "mode_shares_2022",
+      "value": "auto driver 64.6%, passenger 18.5%, transit 3.5%, walk 8.3%, bike 0.7%, school bus 3.7%, other 0.6%",
+      "comparability": "2022-only",
+      "notes": "2022 methodology (persons 5+, fuller walking capture). Shares may not sum to 100% due to rounding."
+    },
+    {
+      "id": "transit-growth-pre2022",
+      "headline": "Transit's share of resident weekday trips rose from 4.5% in 1986 to 6.4% in 2016 (comparable pre-2022 cycles only).",
+      "metric": "transit_share_1986_2016",
+      "from": "1986: 4.5%",
+      "to": "2016: 6.4%",
+      "comparability": "caution",
+      "notes": "Excludes 2022 (methodology break)."
+    },
+    {
+      "id": "ward-transit-extremes",
+      "headline": "Ward-level transit share ranges from 5.1% in Oshawa Ward 2 to 0.5% in Clarington Ward 4.",
+      "metric": "transit_share_wards_2022",
+      "value": "highest Oshawa Ward 2 5.1%",
+      "durham": "3.5%",
+      "comparability": "within-2022",
+      "notes": "Wards with ≥500 surveyed households; suppressed shares excluded.",
+      "ranking": [
+        {
+          "place": "Oshawa Ward 2",
+          "value": "5.1%"
+        },
+        {
+          "place": "Whitby Ward 3",
+          "value": "5.1%"
+        },
+        {
+          "place": "Ajax Ward 3",
+          "value": "5.1%"
+        },
+        {
+          "place": "Ajax Ward 2",
+          "value": "5.0%"
+        },
+        {
+          "place": "Ajax Ward 1",
+          "value": "4.9%"
+        },
+        {
+          "place": "Pickering Ward 2",
+          "value": "4.9%"
+        },
+        {
+          "place": "Oshawa Ward 5",
+          "value": "4.9%"
+        },
+        {
+          "place": "Whitby Ward 4",
+          "value": "4.9%"
+        }
+      ]
+    }
+  ]
+}

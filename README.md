@@ -75,3 +75,13 @@ Sources and checksums: `/sources` and `/data/manifest.json`.
 
 Static export (`out/`) — hostable on any static CDN. No database, no backend, no authenticated
 data access. The architecture leaves seams for a future OD/flow layer (`docs/od-data-investigation.md`).
+
+On dev-lab2 the export is served persistently on **port 3310** (always this port):
+
+```bash
+cp deploy/durham-in-motion.service ~/.config/systemd/user/
+systemctl --user enable --now durham-in-motion.service
+tailscale serve --bg --https=3310 http://127.0.0.1:3310
+```
+
+Tailnet URL: `https://dev-lab2.manx-teeth.ts.net:3310/`

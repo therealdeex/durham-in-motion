@@ -1,0 +1,11 @@
+[Unit]
+Description=Durham in Motion static site (serves out/ on 127.0.0.1:3310)
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -m http.server 3310 --bind 127.0.0.1 --directory /home/shahram/dev/durham-in-motion/out
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

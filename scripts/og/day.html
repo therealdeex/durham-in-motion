@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1200px; height: 630px; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; position: relative; }
+  .bg { position: absolute; inset: 0; background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0,133,122,0.14), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(245,176,67,0.10), transparent),
+    #0f1418; }
+  .kicker { position: absolute; left: 72px; top: 88px; font-family: Arial, sans-serif; font-size: 15px; letter-spacing: 0.28em; text-transform: uppercase; color: #f5b043; font-weight: 600; }
+  h1 { position: absolute; left: 72px; top: 150px; font-size: 104px; line-height: 1.0; color: #ecf1f0; font-weight: 600; width: 620px; }
+  .sub { position: absolute; left: 72px; top: 480px; font-family: Arial, sans-serif; font-size: 24px; color: #a9b6b4; width: 560px; line-height: 1.5; }
+  .sub strong { color: #ecf1f0; }
+  svg.clock { position: absolute; right: 96px; top: 115px; }
+  .peak { position: absolute; right: 96px; top: 470px; text-align: right; font-family: Arial, sans-serif; }
+  .peak .n { font-size: 56px; color: #f5b043; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .peak .l { font-size: 15px; color: #a9b6b4; margin-top: 4px; }
+  .brand { position: absolute; left: 72px; bottom: 44px; font-family: Arial, sans-serif; font-size: 16px; color: #7d8a88; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="kicker">A story from the 2022 Transportation Tomorrow Survey</div>
+  <h1>A Day in Durham</h1>
+  <p class="sub">More than <strong>a million weekday journeys</strong> — and the biggest hour is <strong>3 p.m.</strong></p>
+  <div class="peak">
+    <div class="n">161,115</div>
+    <div class="l">trip starts at 3 p.m. — more than 8 a.m.</div>
+  </div>
+  <svg class="clock" width="300" height="300" viewBox="0 0 300 300">
+    <circle cx="150" cy="150" r="130" fill="#141f26" stroke="#2a3d44" stroke-width="2.5"/>
+    <!-- hour ticks -->
+    <g id="ticks"></g>
+    <!-- sweep from 04:00 (top-right) clockwise to 15:00 (bottom-left) -->
+    <path d="M 262.58 85 A 130 130 0 0 1 58.08 241.92" fill="none" stroke="#7fd6cc" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+    <line x1="150" y1="150" x2="58.08" y2="241.92" stroke="#ecf1f0" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="150" cy="150" r="7" fill="#ecf1f0"/>
+    <circle cx="262.58" cy="85" r="6" fill="#f5b043"/>
+    <text x="150" y="296" text-anchor="middle" font-family="Arial" font-size="16" fill="#7d8a88">the survey day starts at 4 a.m.</text>
+  </svg>
+  <div class="brand">Durham in Motion</div>
+  <script>
+    const g = document.getElementById('ticks');
+    for (let h = 0; h < 24; h++) {
+      const a = ((h / 24) * 360 - 90) * Math.PI / 180;
+      const r1 = 130, r2 = h % 6 === 0 ? 116 : 123;
+      const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l.setAttribute('x1', 150 + r1 * Math.cos(a)); l.setAttribute('y1', 150 + r1 * Math.sin(a));
+      l.setAttribute('x2', 150 + r2 * Math.cos(a)); l.setAttribute('y2', 150 + r2 * Math.sin(a));
+      l.setAttribute('stroke', h === 4 ? '#f5b043' : '#3d4a52');
+      l.setAttribute('stroke-width', h === 4 ? 3 : 2);
+      g.appendChild(l);
+    }
+  </script>
+</body>
+</html>

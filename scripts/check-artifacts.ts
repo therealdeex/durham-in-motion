@@ -129,5 +129,54 @@ const manualMissing = manifest.sources.filter(
 );
 check(manualMissing.length === 0, "no manual source recorded as plain 'missing' (must be inventories)");
 
+// ---------- story-day.json (Phase 4) ----------
+const dayStory = readJson("story-day.json");
+check(dayStory.meta?.binMinutes === 30 && dayStory.bins?.length === 48, "day story: 48 × 30-minute bins");
+check(dayStory.meta?.displayFloor === 300, "day story: map display floor 300 trips/bin");
+check(
+  dayStory.meta?.sources?.includes("F") && dayStory.meta?.sources?.includes("G") && dayStory.meta?.sources?.includes("H"),
+  "day story: source ids F/G/H recorded",
+);
+if (dayStory.bins) {
+  const hour = (h: number) =>
+    dayStory.bins
+      .filter((b: { t: number }) => b.t >= (h - 4) * 60 && b.t < (h - 4 + 1) * 60)
+      .reduce((a: number, b: { trips: number }) => a + b.trips, 0);
+  check(hour(8) === 156_056, "day story: 08:00 hour = 156,056 trips (F)");
+  check(hour(15) === 161_115 && hour(15) > hour(8), "day story: 15:00 hour = 161,115 trips — the bigger surge (F)");
+  const net = (h: number) =>
+    dayStory.bins
+      .filter((b: { t: number }) => b.t >= (h - 4) * 60 && b.t < (h - 4 + 1) * 60)
+      .reduce((a: number, b: { inbound: number; outbound: number }) => a + b.inbound - b.outbound, 0);
+  check(net(7) === -15_134 && net(17) === 10_474, "day story: boundary net −15,134 (07:00) → +10,474 (17:00) (G/H)");
+  check(
+    dayStory.bins.every((b: { pairs: { v: number }[] }) => b.pairs.every((p) => p.v >= (dayStory.meta.displayFloor ?? 0))),
+    "day story: every map-frame pair above the display floor",
+  );
+  const support = dayStory.bins.reduce((a: number, b: { surveyRecords: number }) => a + b.surveyRecords, 0);
+  check(support === 54_535, "day story: bin support sums to the F-unexp universe");
+}
+
+// ---------- story-transit.json (Phase 4) ----------
+const transitStory = readJson("story-transit.json");
+check(transitStory.totals?.journeys === 50_753, "transit story: 50,753 journeys (P)");
+check(transitStory.totals?.goJourneys === 18_736, "transit story: 18,736 GO journeys (N)");
+const stations: { id: string; boardings: number; carShare: number }[] = transitStory.stations ?? [];
+check(
+  stations.length === 4 && stations.every((s) => Number.isFinite(s.carShare)),
+  "transit story: four Durham line stations with access profiles",
+);
+const oshawa = stations.find((s) => s.id === "oshawa");
+check(
+  !!oshawa && Math.abs(oshawa.carShare - 0.908) < 0.0005 && oshawa.boardings === 2_729,
+  "transit story: Oshawa 2,729 boardings, 90.8% arrive by car (N)",
+);
+const union = (transitStory.destinations ?? []).find((d: { name: string }) => d.name === "Union GO");
+const destTotal = (transitStory.destinations ?? []).reduce((a: number, d: { trips: number }) => a + d.trips, 0);
+check(
+  !!union && union.trips === 8_644 && Math.abs(union.trips / destTotal - 0.4614) < 0.0005,
+  "transit story: Union alightings 8,644 = 46.1% (O)",
+);
+
 console.log(`\n${failures === 0 ? "PASS" : "FAIL"}: ${checks} semantic checks passed, ${failures} failed`);
 if (failures > 0) process.exit(1);

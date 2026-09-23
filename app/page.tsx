@@ -360,9 +360,91 @@ export default function StoryPage() {
             </div>
           </div>
         </section>
+
+        {/* Keep exploring — the story shelf */}
+        <section id="keep-exploring" className="dark-section dark-textured scroll-mt-8 border-t border-night-line/50" aria-labelledby="keep-exploring-h">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <p className="chapter-kicker">Keep exploring</p>
+            <h2 id="keep-exploring-h" className="mt-3 max-w-[22ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-chalk">
+              Two more ways to see Durham move
+            </h2>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              <Link
+                href="/stories/day/"
+                className="group relative overflow-hidden rounded-2xl border border-night-line bg-night-soft p-7 transition-colors hover:border-walk/60 md:p-8"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-walk">Story</p>
+                <h3 className="mt-3 font-display text-2xl font-semibold text-chalk">A Day in Durham</h3>
+                <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-chalk-dim">
+                  How more than a million weekday journeys change from hour to hour — and why the
+                  afternoon, not the morning rush, is the region&apos;s biggest surge.
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-walk">
+                  Watch the day unfold
+                  <span aria-hidden className="transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none">→</span>
+                </span>
+                <ClockGlyph />
+              </Link>
+              <Link
+                href="/stories/transit/"
+                className="group relative overflow-hidden rounded-2xl border border-night-line bg-night-soft p-7 transition-colors hover:border-walk/60 md:p-8"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-walk">Story</p>
+                <h3 className="mt-3 font-display text-2xl font-semibold text-chalk">The Transit Journey</h3>
+                <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-chalk-dim">
+                  How Durham residents reach transit, connect through stations, and complete their
+                  journeys — a transit trip starts before the train arrives.
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-walk">
+                  Follow the chain
+                  <span aria-hidden className="transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none">→</span>
+                </span>
+                <RailGlyph />
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </>
+  );
+}
+
+/** Decorative 24-hour dial for the day-story card. */
+function ClockGlyph() {
+  const R = 46;
+  const C = 52;
+  const pt = (min: number, r: number) => {
+    const a = ((min / 1440) * 360 - 90) * (Math.PI / 180);
+    return { x: C + r * Math.cos(a), y: C + r * Math.sin(a) };
+  };
+  const from = pt(240, R);
+  const to = pt(1110, R);
+  return (
+    <svg viewBox="0 0 104 104" className="pointer-events-none absolute -bottom-4 -right-3 h-32 w-32 opacity-60" aria-hidden>
+      <circle cx={C} cy={C} r={R} fill="none" stroke="#2a333b" strokeWidth="1.5" />
+      {Array.from({ length: 24 }, (_, h) => {
+        const a = pt(h * 60, R);
+        const b = pt(h * 60, h % 6 === 0 ? R - 6 : R - 3);
+        return <line key={h} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={h === 4 ? "#f5b043" : "#3d4a52"} strokeWidth={h === 4 ? 1.6 : 1} />;
+      })}
+      <path d={`M${from.x} ${from.y} A${R} ${R} 0 1 1 ${to.x} ${to.y}`} fill="none" stroke="#7fd6cc" strokeWidth="3.5" strokeLinecap="round" opacity="0.9" />
+      <circle cx={C} cy={C} r="2.5" fill="#ecf1f0" />
+    </svg>
+  );
+}
+
+/** Decorative line-and-stations glyph for the transit-story card. */
+function RailGlyph() {
+  const stations = [10, 34, 58, 82, 94];
+  return (
+    <svg viewBox="0 0 104 104" className="pointer-events-none absolute -bottom-5 -right-4 h-28 w-44 opacity-60" aria-hidden>
+      <path d="M6 62 Q52 46 98 62" fill="none" stroke="#2a333b" strokeWidth="2" />
+      <path d="M6 62 Q52 46 98 62" fill="none" stroke="#00857a" strokeWidth="2" strokeDasharray="4 7" strokeLinecap="round" />
+      {stations.map((x, i) => (
+        <circle key={x} cx={x} cy={62 - Math.sin(((x - 6) / 92) * Math.PI) * 14} r={i === stations.length - 1 ? 5 : i === 0 ? 5 : 3.5} fill={i === 0 || i === stations.length - 1 ? "#f5b043" : "#7fd6cc"} />
+      ))}
+    </svg>
   );
 }
 
@@ -381,6 +463,8 @@ function SiteFooter() {
           </p>
         </div>
         <nav aria-label="Site" className="flex flex-col gap-1.5 text-sm">
+          <Link href="/stories/day/" className="text-chalk-dim transition-colors hover:text-chalk">A Day in Durham</Link>
+          <Link href="/stories/transit/" className="text-chalk-dim transition-colors hover:text-chalk">The Transit Journey</Link>
           <Link href="/methodology/" className="text-chalk-dim transition-colors hover:text-chalk">Methodology</Link>
           <Link href="/sources/" className="text-chalk-dim transition-colors hover:text-chalk">Sources &amp; licence</Link>
           <a href="/data/manifest.json" className="text-chalk-dim transition-colors hover:text-chalk">Data manifest (JSON)</a>

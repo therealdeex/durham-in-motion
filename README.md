@@ -53,18 +53,27 @@ scripts/            ETL pipeline (TypeScript, run with tsx)
   build-story-data.ts → public/data/*.json (region, trends, municipalities, wards)
   build-insights.ts   → public/data/insights.json (8 qualified analyses + documented gaps)
   find-findings.ts    → public/data/story-candidates.json + docs/findings.md
+  build-phase3-data.ts → data/processed/phase3/normalized.json (widened iDRS extracts:
+                      the travel day, boundary exchange, distance, age, vehicles, transit)
+  build-phase4-data.ts → public/data/story-day.json + story-transit.json (the two
+                      story pages; re-aggregates raw G/H/N extracts for time×geography
+                      and station catchments — see docs/phase4-build.md)
   check-artifacts.ts  read-only semantic gate over the committed artifacts
   inspect-data.ts     validation + docs/data-inventory.md (1,936 partition checks,
                       40 ward↔municipality reconciliations)
 lib/                shared client contracts: metric registry (labels/denominators/palette),
-                    place-state (single ?place= URL owner), formatting, types
+                    place-state (single ?place= URL owner), formatting, types;
+                    lib/stories/ — Phase 4 story contracts, selectors, loaders
 components/
   explore/            the community explorer (snapshot / destinations / map / compare panels)
   insights/           insight charts inside shared ChartFrames
+  stories/            editorial primitives (StoryHero, StoryBeat, StickyVisualization,
+                      MetricReveal, StoryTimeline, …), the reusable FlowMap engine,
+                      and the /stories/day + /stories/transit experiences
   viz/                mode grid, morph, network map, long view, comparable basis
 public/data/        the curated JSON the browser consumes (no runtime CSV parsing)
-docs/               inventory, findings, od-findings, permissions, acquisition manifest
-tests/              data-pipeline invariants incl. OD and insights golden values
+docs/               inventory, findings, od-findings, phase3 audit/findings, phase4 build notes
+tests/              data-pipeline invariants incl. OD, insights and Phase 3/4 golden values
 ```
 
 ## Data rules (non-negotiable)
@@ -108,6 +117,31 @@ tests/              data-pipeline invariants incl. OD and insights golden values
 8. **The long view** — 1986→2022 series with basis breaks, plus the comparable-basis block.
 9. **How to read this** — plain-language methodology, practitioner detail on `/methodology`,
    and the questions this data cannot answer (yet).
+
+## The story shelf — `/stories/`
+
+Two focused editorial experiences, linked from the homepage's "Keep exploring"
+section (built in Phase 4 from the Phase 3 extracts; every headline number
+flows through `lib/stories/selectors.ts` and is pinned in
+`tests/data/phase4.test.ts`):
+
+- **A Day in Durham** (`/stories/day/`) — one clock drives a regional map, a
+  volume curve, the purpose mix and the boundary balance across a 4 a.m.–4 a.m.
+  survey day in 30-minute bins. The reveal: the 3 p.m. hour (161,115 trip
+  starts) outranks the 8 a.m. peak (156,056), and the boundary flow reverses
+  from −15,134 (07:00) to +10,474 (17:00). After the guided beats, an explore
+  mode unlocks a scrubber, play, and purpose/mode curve filters.
+- **The Transit Journey** (`/stories/transit/`) — the chain from doorstep to
+  destination: how riders reach transit (walk 62% of journeys system-wide),
+  the station ladder of car access (Oshawa 90.8% by car, Pickering 26% walk),
+  Whitby/Oshawa boarding parity, Union at 46.1% of alightings ("more than half
+  end elsewhere"), sample-supported station flows, and the multi-link reality
+  of GO journeys.
+
+Architecture notes: the day map renders through the reusable `FlowScene` /
+`FlowFrame` contract, so a future "Every Mode Has Its Own Map" can bind the
+same engine to persistent mode-network states. Build decisions (bin interval,
+display floors, population bases) are documented in `docs/phase4-build.md`.
 
 ## Attribution
 

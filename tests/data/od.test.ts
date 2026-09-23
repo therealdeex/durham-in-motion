@@ -19,6 +19,8 @@ import {
   getComparable2022,
   getFull2022Modes,
   getModeContexts,
+  getRegionTravelProfile,
+  getLocalComposition,
   MUNI_IDS,
   MODE_GROUP_ORDER,
 } from "../../scripts/lib/od.ts";
@@ -78,11 +80,69 @@ test("municipality profiles reconcile with the matrix", () => {
     assert.ok(Math.abs(total - 1) < 1e-9, `${id} orbit shares sum to ${total}`);
     // Region internal trips = sum of same + elsewhere-in-Durham across municipalities.
     assert.ok(p.originTrips > 0);
-    assert.ok(p.topDestinations.length > 0);
+    assert.ok(p.destinations.length > 0);
     // Mode group shares sum to ~1 and never negative.
     const modeSum = MODE_GROUP_ORDER.reduce((s, g) => s + p.modeGroupShares[g]!, 0);
     assert.ok(Math.abs(modeSum - 1) < 1e-9, `${id} mode shares sum to ${modeSum}`);
   }
+});
+
+test("A02: Toronto destinations are aggregated before ranking — Pickering has one Toronto entry with 20,682 trips", () => {
+  const p = getMunicipalityOriginProfile(ds, "pickering");
+  const torontoEntries = p.destinations.filter((d) => d.destinationId === "toronto");
+  assert.equal(torontoEntries.length, 1, "exactly one aggregated Toronto destination");
+  assert.equal(torontoEntries[0]!.trips, 20_682);
+  // 12.15% before presentation rounding (site shows 12.2%).
+  assert.ok(Math.abs(torontoEntries[0]!.trips / p.originTrips - 0.1215) < 0.0005);
+  // Toronto's rank in the sorted distribution must reflect the aggregate,
+  // not a single planning district (the old bug showed 3,973 trips / 2%).
+  const torontoTrips = torontoEntries[0]!.trips;
+  assert.ok(torontoTrips > 20_000, `aggregate, not one PD (${torontoTrips})`);
+  assert.equal(Math.round(torontoTrips), 20_682);
+});
+
+test("A02: destination ids are unique across every municipality's full distribution", () => {
+  for (const id of MUNI_IDS) {
+    const p = getMunicipalityOriginProfile(ds, id);
+    const ids = p.destinations.map((d) => d.destinationId);
+    assert.equal(new Set(ids).size, ids.length, `${id} has duplicate destination ids`);
+    // The four group sums reconcile to the origin total.
+    const g = (grp: string) => p.destinations.filter((d) => d.group === grp).reduce((s, d) => s + d.trips, 0);
+    assert.equal(g("same") + g("durham") + g("toronto") + g("outside"), p.originTrips);
+  }
+});
+
+test("A03: local composition — the three-way partition of all Durham-household trips", () => {
+  const c = getLocalComposition(ds);
+  assert.equal(c.sameMunicipality, 819_579);
+  assert.equal(c.betweenDurhamMunicipalities, 324_532);
+  assert.equal(c.outsideInvolving, 296_026);
+  assert.equal(c.totalTrips, 1_440_137);
+  // Shares: 56.9% / 22.5% / 20.6% (audit-verified values).
+  for (const [v, expected] of [
+    [c.sameMunicipality / c.totalTrips, 0.569],
+    [c.betweenDurhamMunicipalities / c.totalTrips, 0.225],
+    [c.outsideInvolving / c.totalTrips, 0.206],
+  ] as const) {
+    assert.ok(Math.abs(v - expected) < 0.0005, `${v} vs ${expected}`);
+  }
+  // internal = same + cross.
+  assert.equal(c.sameMunicipality + c.betweenDurhamMunicipalities, getInternalTrips(ds));
+});
+
+test("A03: region orbit is origin-scoped; Toronto exceeds all other outside destinations combined", () => {
+  const r = getRegionTravelProfile(ds);
+  const elsewhereOutside = r.elsewhereSurveyArea + r.beyondSurveyArea;
+  assert.equal(r.toronto, 77_303);
+  assert.equal(elsewhereOutside, 56_903);
+  assert.ok(r.toronto > elsewhereOutside, "the previously reversed claim must now point the right way");
+  // Shares of Durham-origin trips: 6.05% vs 4.45%.
+  assert.ok(Math.abs(r.toronto / r.durhamOriginTrips - 0.0605) < 0.0005);
+  assert.ok(Math.abs(elsewhereOutside / r.durhamOriginTrips - 0.0445) < 0.0005);
+  assert.equal(
+    r.sameMunicipality + r.elsewhereInDurham + r.toronto + r.elsewhereSurveyArea + r.beyondSurveyArea,
+    r.durhamOriginTrips,
+  );
 });
 
 test("mode composition matches validated contexts", () => {
@@ -92,15 +152,22 @@ test("mode composition matches validated contexts", () => {
   const tor = getModeComposition(ds, { origin: "durham", destination: "toronto" });
   assert.equal(Math.round(tor.trips.transit! / tor.total * 1000) / 1000, 0.153);
 
-  // Non-overlapping contexts (internal, toToronto, toOutside — "same" is inside
-  // "internal") reproduce the matrix's Durham-origin total within the 9-trip
-  // mode-not-stated residue.
+  // The five disjoint contexts partition Durham-origin trips within the
+  // 9-trip mode-not-stated residue; the combined context overlaps them and
+  // must NOT be added to the same sum.
   const contexts = getModeContexts(ds);
   const byKey = new Map(contexts.map((c) => [c.key, c]));
-  const nonOverlapping = ["internalDurham", "toToronto", "toOutside"].reduce((s, k) => s + byKey.get(k)!.trips, 0);
+  const disjoint = contexts.filter((c) => c.disjoint);
+  assert.equal(disjoint.length, 5);
+  const disjointSum = disjoint.reduce((s, c) => s + c.trips, 0);
   const matrixDurhamOrigin = MUNI_IDS.reduce((s, id) => s + getMunicipalityOriginProfile(ds, id).originTrips, 0);
-  assert.ok(Math.abs(nonOverlapping - matrixDurhamOrigin) <= 9);
-  // Contexts agree with getModeComposition on the shared context.
+  assert.ok(Math.abs(disjointSum - matrixDurhamOrigin) <= 9);
+  // Combined context equals same + otherDurham.
+  assert.equal(byKey.get("allInternalDurham")!.trips, byKey.get("sameMunicipality")!.trips + byKey.get("otherDurham")!.trips);
+  // "outside" excludes external; the two are separate contexts.
+  const elsewhere = byKey.get("elsewhereSurveyArea")!;
+  const beyond = byKey.get("beyondSurveyArea")!;
+  assert.ok(elsewhere.trips > 0 && beyond.trips > 0);
   assert.equal(Math.round(byKey.get("toToronto")!.trips), Math.round(tor.total));
 });
 

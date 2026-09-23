@@ -1,8 +1,16 @@
 /**
- * OD analysis pass (A–I) over the iDRS extracts → docs/od-findings.md.
- * Editorial doc; every number in it is computed here from the raw extracts.
- * Pair with scripts/build-od-data.ts (site data) and tests/data/od.test.ts
+ * OD analysis pass over the iDRS extracts → docs/od-findings.md.
+ * Editorial doc; every number in it is computed here from the raw extracts
+ * via the same selectors the site uses (scripts/lib/od.ts). Pair with
+ * scripts/build-od-data.ts (site data) and tests/data/od.test.ts
  * (golden-value assertions).
+ *
+ * Column conventions (audit A03):
+ *  - "Elsewhere in survey area" = outside Durham and Toronto, INSIDE the
+ *    surveyed area (TTS planning districts outside Durham/Toronto);
+ *  - "Beyond survey area" = TTS code 998 (External) only;
+ *  - shares of Durham-origin trips use the Durham-origin denominator, never
+ *    the all-trips total.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -17,13 +25,15 @@ import {
   getMunicipalityOriginProfile,
   getMunicipalityDestinationProfile,
   getModeComposition,
+  getModeContexts,
+  getRegionTravelProfile,
+  getLocalComposition,
   getComparable2022,
   MUNI_IDS,
   MUNI_NAMES,
   MODE_GROUP_ORDER,
   MODE_GROUP_LABEL,
   type ModeGroup,
-  type OdDataset,
 } from "./lib/od.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -53,6 +63,9 @@ const profiles = new Map(MUNI_IDS.map((id) => [id, getMunicipalityOriginProfile(
 const destinationProfiles = new Map(MUNI_IDS.map((id) => [id, getMunicipalityDestinationProfile(ds, id)]));
 const pairs = getMunicipalityPairFlows(ds).sort((a, b) => b.totalTwoWay - a.totalTwoWay);
 const comparable = getComparable2022(ds);
+const region = getRegionTravelProfile(ds);
+const local = getLocalComposition(ds);
+const durhamOriginTrips = MUNI_IDS.reduce((s, id) => s + profiles.get(id)!.originTrips, 0);
 
 say("# OD findings — 2022 TTS origin–destination analysis");
 say();
@@ -69,8 +82,8 @@ say(`| Quantity | Value |`);
 say(`|---|---|`);
 say(`| Total trips (Durham households) | ${fmt(total)} |`);
 say(`| Internal (origin and destination in Durham) | ${fmt(internal)} (${pct(internal / total, 2)}) |`);
-say(`| Durham → Toronto | ${fmt(toToronto)} (${pct(toToronto / total, 2)}) |`);
-say(`| Toronto → Durham | ${fmt(fromToronto)} (${pct(fromToronto / total, 2)}) |`);
+say(`| Durham → Toronto | ${fmt(toToronto)} (${pct(toToronto / total, 2)} of all trips) |`);
+say(`| Toronto → Durham | ${fmt(fromToronto)} (${pct(fromToronto / total, 2)} of all trips) |`);
 say(`| 2016-comparable 2022 trips (excl2016 = 0) | ${fmt(comparable.total)} |`);
 say(`| 2022-comparable transit | ${fmt(comparable.groups.transit ?? 0)} (${pct((comparable.groups.transit ?? 0) / comparable.total, 2)}) |`);
 const t2016 = durhamTrip(2016, "transit_local") + durhamTrip(2016, "go_rail") + durhamTrip(2016, "joint_go_transit");
@@ -85,28 +98,30 @@ say();
 // ------------------------------------------------------------------ A ---
 say("## A. Municipality OD matrix (expanded weekday trips)");
 say();
-say("Origins are Durham municipalities; destination groups: the eight municipalities, Toronto, elsewhere in the surveyed area, and beyond it (TTS code 998).");
+say("Rows are Durham-municipality origins. Columns: the eight municipalities, Toronto (aggregated over its 16 planning districts), elsewhere in the surveyed area, and beyond it (TTS code 998).");
 say();
-const cols = ["From \\ To", ...MUNI_IDS.map((id) => MUNI_NAMES[id]!), "Toronto", "Outside", "Beyond"];
+const cols = ["From \\ To", ...MUNI_IDS.map((id) => MUNI_NAMES[id]!), "Toronto", "Elsewhere surveyed", "Beyond", "Origin total"];
 say(`| ${cols.join(" | ")} |`);
 say(`|${cols.map(() => "---|").join("")}`);
 for (const id of MUNI_IDS) {
   const p = profiles.get(id)!;
   const cells = MUNI_IDS.map((d) => {
-    const f = p.topDestinations.find((x) => x.destinationId === d);
+    const f = p.destinations.find((x) => x.destinationId === d);
     return f ? fmt(f.trips) : "0";
   });
-  const tor = p.topDestinations.find((x) => x.group === "toronto");
-  say(`| ${MUNI_NAMES[id]!} | ${cells.join(" | ")} | ${fmt(tor?.trips ?? 0)} | ${fmt(p.otherExternal)} | ${fmt(p.originTrips)} |`);
+  const tor = p.destinations.find((x) => x.destinationId === "toronto");
+  const external = p.destinations.find((x) => x.destinationId === "external");
+  const elsewhereSurveyed = p.otherExternal - (external?.trips ?? 0);
+  say(`| ${MUNI_NAMES[id]!} | ${cells.join(" | ")} | ${fmt(tor?.trips ?? 0)} | ${fmt(elsewhereSurveyed)} | ${fmt(external?.trips ?? 0)} | ${fmt(p.originTrips)} |`);
 }
 say();
-say('(Column "Beyond" = TTS "External" destinations outside the surveyed area; it is part of "Outside" totals above.)');
+say(`Toronto cells are the aggregate over all 16 Toronto planning districts (audit A02: one PD alone is not "Toronto"). Each row reconciles: municipalities + Toronto + elsewhere + beyond = origin total.`);
 say();
 
 // ------------------------------------------------------------------ B/C/D ---
 say("## B–D. Retention and orientation by municipality");
 say();
-say("| Municipality | Trips originating | Stay in same municipality | Somewhere in Durham | To Toronto | Elsewhere outside |");
+say("| Municipality | Trips originating | Stay in same municipality | Somewhere in Durham | To Toronto | Elsewhere outside Durham |");
 say("|---|---|---|---|---|---|");
 for (const id of MUNI_IDS) {
   const p = profiles.get(id)!;
@@ -132,7 +147,7 @@ say();
 {
   const agg = new Map<string, { name: string; trips: number }>();
   for (const p of profiles.values()) {
-    for (const f of p.topDestinations) {
+    for (const f of p.destinations) {
       if (f.group !== "outside") continue;
       const key = f.destinationId;
       const cur = agg.get(key) ?? { name: f.destinationName, trips: 0 };
@@ -148,43 +163,36 @@ say();
 }
 
 // ------------------------------------------------------------------ F ---
-say("## F. Mode by destination context");
+say("## F. Mode by destination context (disjoint)");
 say();
 {
-  const defs: { label: string; o: string; d: string }[] = [
-    { label: "Same municipality (origin = destination)", o: "durham", d: "same" },
-    { label: "Elsewhere in Durham", o: "durham", d: "durham-other" },
-    { label: "To Toronto", o: "durham", d: "toronto" },
-    { label: "Elsewhere outside Durham (incl. beyond surveyed area)", o: "durham", d: "outside" },
+  const contexts = new Map(getModeContexts(ds).map((c) => [c.key, c]));
+  const rows: { label: string; key: string }[] = [
+    { label: "Same municipality (origin = destination)", key: "sameMunicipality" },
+    { label: "Another Durham municipality", key: "otherDurham" },
+    { label: "To Toronto", key: "toToronto" },
+    { label: "Elsewhere in survey area (excl. beyond)", key: "elsewhereSurveyArea" },
+    { label: "Beyond the surveyed area (code 998)", key: "beyondSurveyArea" },
+    { label: "— combined: anywhere in Durham (overlaps rows 1–2)", key: "allInternalDurham" },
   ];
   say("| Context | " + MODE_GROUP_ORDER.map((g) => MODE_GROUP_LABEL[g]!).join(" | ") + " | Trips |");
   say("|---|" + MODE_GROUP_ORDER.map(() => "---|").join("") + "---|");
-  for (const def of defs) {
-    let trips: Record<ModeGroup, number>;
-    let tot: number;
-    if (def.d === "same") {
-      const r = sumFilter(ds, (o, d) => isDurhamCode(o) && o === d);
-      trips = r.trips;
-      tot = r.total;
-    } else if (def.d === "durham-other") {
-      const r = sumFilter(ds, (o, d) => isDurhamCode(o) && isDurhamCode(d) && o !== d);
-      trips = r.trips;
-      tot = r.total;
-    } else if (def.d === "toronto") {
-      const r = getModeComposition(ds, { origin: "durham", destination: "toronto" });
-      trips = r.trips;
-      tot = r.total;
-    } else {
-      const r = getModeComposition(ds, { origin: "durham", destination: "outside" });
-      trips = r.trips;
-      tot = r.total;
-    }
-    say(`| ${def.label} | ${MODE_GROUP_ORDER.map((g) => pct(trips[g]! / tot)).join(" | ")} | ${fmt(tot)} |`);
+  for (const r of rows) {
+    const c = contexts.get(r.key)!;
+    say(`| ${r.label} | ${MODE_GROUP_ORDER.map((g) => pct(c.groups[g]! / c.trips)).join(" | ")} | ${fmt(c.trips)} |`);
   }
+  const disjointSum = rows.slice(0, 5).reduce((s, r) => s + contexts.get(r.key)!.trips, 0);
+  say();
+  say(`The five disjoint contexts sum to ${fmt(disjointSum)} versus ${fmt(durhamOriginTrips)} Durham-origin trips in the unidimensional matrix (9-trip mode-not-stated residue). "Elsewhere in survey area" and "beyond the surveyed area" are reported separately — never pooled silently (audit A03).`);
+  say();
+
+  // Walk/drive contrast across disjoint contexts (the "boundary" candidate).
+  const same = contexts.get("sameMunicipality")!;
+  const cross = contexts.get("otherDurham")!;
+  const sh = (c: { groups: Record<ModeGroup, number>; trips: number }, g: ModeGroup) => c.groups[g]! / c.trips;
+  say(`Drive/walk contrast: within the same municipality drive ${pct(sh(same, "drive"))} / walk ${pct(sh(same, "walk"))}; between Durham municipalities drive ${pct(sh(cross, "drive"))} / walk ${pct(sh(cross, "walk"))}.`);
+  say();
 }
-say();
-say('(Each row sums to 100% across mode groups; "Other" includes taxi, rideshare, motorcycle, e-scooter and unclassified.)');
-say();
 
 // ------------------------------------------------------------------ G ---
 say("## G. Directional asymmetry by municipal pair");
@@ -198,7 +206,7 @@ for (const p of pairs.slice(0, 12)) {
   );
 }
 say();
-say("(Top 12 two-way pairs by volume; the direction column distinguishes home-based outbound from return travel.)");
+say("(Top 12 two-way pairs by volume. Direction distinguishes outbound from return travel; it does not label home-based versus non-home-based journeys.)");
 say();
 
 // ------------------------------------------------------------------ H ---
@@ -241,6 +249,22 @@ say();
   say();
 }
 
+// ------------------------------------------------------------- composition ---
+say("## J. What kind of local? (mutually exclusive composition of all Durham-household trips)");
+say();
+say(`| Group | Trips | Share of ${fmt(local.totalTrips)} |`);
+say(`|---|---|---|`);
+say(`| Both endpoints in the same municipality | ${fmt(local.sameMunicipality)} | ${pct(local.sameMunicipality / local.totalTrips)} |`);
+say(`| Between Durham municipalities | ${fmt(local.betweenDurhamMunicipalities)} | ${pct(local.betweenDurhamMunicipalities / local.totalTrips)} |`);
+say(`| At least one endpoint outside Durham | ${fmt(local.outsideInvolving)} | ${pct(local.outsideInvolving / local.totalTrips)} |`);
+say();
+say(`The last group includes trips entirely outside Durham made by Durham-household members. Same-municipality + between-municipalities = the ${pct(internal / total, 2)} internal share.`);
+say();
+const top3 = pairs.slice(0, 3);
+const top3Sum = top3.reduce((s, p) => s + p.totalTwoWay, 0);
+say(`Concentration: the top three municipal pairs (${top3.map((p) => `${MUNI_NAMES[p.a]!}–${MUNI_NAMES[p.b]!}`).join(", ")}) carry ${fmt(top3Sum)} two-way trips — ${pct(top3Sum / local.betweenDurhamMunicipalities)} of all intermunicipal Durham travel.`);
+say();
+
 // ------------------------------------------------------------------ findings ---
 say("## Candidate findings (ranked internally — do not publish the ranking)");
 say();
@@ -256,7 +280,7 @@ interface Finding {
 }
 
 const internalShare = getInternalShare(ds);
-const toOutsidePct = 1 - internalShare - toToronto / total;
+const elsewhereOutsideDurham = region.elsewhereSurveyArea + region.beyondSurveyArea;
 const internalCtx = getModeComposition(ds, { origin: "durham", destination: "durham" });
 const torontoCtx = getModeComposition(ds, { origin: "durham", destination: "toronto" });
 const sh = (ctx: { trips: Record<ModeGroup, number>; total: number }, g: ModeGroup) => pct(ctx.trips[g]! / ctx.total);
@@ -276,7 +300,7 @@ const findings: Finding[] = [
   {
     title: "The borders aren't where movement stops — strong inter-municipal corridors",
     why: "Shows Durham as one connected network, not eight isolated towns; supports regional (not local-by-local) service planning.",
-    calc: `Two-way municipal pairs: Whitby↔Oshawa ${fmt(pairs[0]!.totalTwoWay)}, Oshawa↔Clarington ${fmt(pairs[1]!.totalTwoWay)}, Pickering↔Ajax ${fmt(pairs[2]!.totalTwoWay)} …`,
+    calc: `Two-way municipal pairs: Whitby↔Oshawa ${fmt(pairs[0]!.totalTwoWay)}, Oshawa↔Clarington ${fmt(pairs[1]!.totalTwoWay)}, Pickering↔Ajax ${fmt(pairs[2]!.totalTwoWay)} … top three = ${pct(top3Sum / local.betweenDurhamMunicipalities)} of intermunicipal travel`,
     viz: "Staged desire-line map: outlines → largest corridor → next → full network; width = √trips.",
     headline: "Durham's communities are tied together: tens of thousands of weekday trips cross each municipal border.",
     caveats: ["Desire lines show where trips begin and end, not routes used.", "Display threshold: only show flows above a chosen minimum to avoid hairlines."],
@@ -285,10 +309,10 @@ const findings: Finding[] = [
   {
     title: "Where we're going changes how we get there",
     why: "The clearest mode-story: walking nearly vanishes and transit triples when the destination is Toronto instead of down the street.",
-    calc: `Internal vs Durham→Toronto mode shares (by-mode OD extract): drive ${sh(internalCtx, "drive")} → ${sh(torontoCtx, "drive")}, ride ${sh(internalCtx, "ride")} → ${sh(torontoCtx, "ride")}, walk ${sh(internalCtx, "walk")} → ${sh(torontoCtx, "walk")}, transit ${sh(internalCtx, "transit")} → ${sh(torontoCtx, "transit")}`,
+    calc: `Same-municipality vs Durham→Toronto mode shares (by-mode OD extract): drive ${sh(internalCtx, "drive")} → ${sh(torontoCtx, "drive")}, ride ${sh(internalCtx, "ride")} → ${sh(torontoCtx, "ride")}, walk ${sh(internalCtx, "walk")} → ${sh(torontoCtx, "walk")}, transit ${sh(internalCtx, "transit")} → ${sh(torontoCtx, "transit")}`,
     viz: "One morphing stacked bar between the two contexts (the visual centrepiece).",
-    headline: "Trips to Toronto look nothing like trips across town — transit carries seven times the share.",
-    caveats: ["Mode-not-stated trips (9 overall) absent from the by-mode extract.", "Shares of trips, not persons."],
+    headline: "Trips to Toronto look nothing like trips across town — transit carries several times the share.",
+    caveats: ["Mode-not-stated trips (9 overall) absent from the by-mode extract.", "Shares of trips, not persons.", "Association with the destination context, not a causal effect of crossing a boundary."],
     scores: { surprise: 4, relevance: 5, visual: 5, robustness: 5, accessibility: 4 },
   },
   {
@@ -297,20 +321,21 @@ const findings: Finding[] = [
     calc: `Per-municipality origin profiles; e.g. ${MUNI_NAMES[mostSelfContained.id]!} keeps ${pct(mostSelfContained.orbitShares.same)} of its trips inside its own border; ${MUNI_NAMES[mostToronto.id]!} sends ${pct(mostToronto.orbitShares.toronto)} to Toronto.`,
     viz: "“Choose your community” selector → animated destination composition + top destinations.",
     headline: "Pick your community: each has its own travel orbit — and they are surprisingly different.",
-    caveats: ["Origin-based only (where trips starting here go).", "Small external flows suppressed from display below threshold."],
+    caveats: ["Origin-based only (where trips starting here go).", "Small external flows hidden from display below the stated threshold."],
     scores: { surprise: 3, relevance: 5, visual: 4, robustness: 5, accessibility: 5 },
   },
   {
-    title: "Toronto matters — but it isn't the whole story",
-    why: "Keeps the commuting story honest: Toronto-bound travel is real and large in absolute terms, just small relative to everything else.",
-    calc: `Durham→Toronto ${fmt(toToronto)} (${pct(toToronto / total)} of all Durham-household trips); Toronto→Durham ${fmt(fromToronto)}.`,
-    viz: "Balance view inside the reveal chapter: Toronto highlighted inside the full flow picture.",
-    headline: "About 77,000 weekday trips connect Durham and Toronto in each direction — one part of a much bigger network.",
+    title: "Toronto is the single largest outside destination — bigger than everywhere else combined",
+    why: `Corrects the earlier reversed claim: Durham-origin trips to Toronto (${fmt(toToronto)}, ${pct(toToronto / durhamOriginTrips, 2)} of Durham-origin trips) exceed those to ALL other destinations outside Durham combined (${fmt(elsewhereOutsideDurham)}, ${pct(elsewhereOutsideDurham / durhamOriginTrips, 2)}).`,
+    calc: `Toronto ${fmt(toToronto)} vs elsewhere-outside-Durham ${fmt(elsewhereOutsideDurham)} (elsewhere surveyed ${fmt(region.elsewhereSurveyArea)} + beyond ${fmt(region.beyondSurveyArea)}), denominators = ${fmt(durhamOriginTrips)} Durham-origin trips`,
+    viz: "Two-bar comparison inside the orbit chapter; the “outside” slice splits into Toronto vs everywhere else.",
+    headline: "More Durham trips head to Toronto than to every other destination outside the region combined.",
     caveats: [
-      "Durham→Toronto counts trips by Durham-household members whose origin is in Durham; not “all residents commuting”.",
-      "Trip-based, all purposes; commute-only figures come from the usual-workplace questions instead.",
+      "Shares use Durham-origin trips as denominator — not the all-trips total (the earlier version mixed the two and reversed the conclusion).",
+      "Aggregates many small flows; “elsewhere” ranges from York Region to Peterborough and beyond the survey area.",
+      "Trip-based, all purposes; not a commuting measure.",
     ],
-    scores: { surprise: 3, relevance: 4, visual: 3, robustness: 5, accessibility: 4 },
+    scores: { surprise: 4, relevance: 4, visual: 3, robustness: 5, accessibility: 4 },
   },
   {
     title: "Transit had not yet returned to its 2016 share",
@@ -320,19 +345,10 @@ const findings: Finding[] = [
     headline: "On a comparable survey basis, transit represented a smaller share of Durham trips in 2022 than in 2016 (3.9% vs 6.4%).",
     caveats: [
       "2022 reflects a post-pandemic travel environment; the TTS alone cannot say why.",
-      "excl2016 flag is itself imperfect (some 2022 trips carry neither 0 nor 1); DMG's guidance is to filter excl2016 = 0 for comparisons.",
+      "The data guide defines excl2016 values 0/1/2 (0 = comparable basis; 2 covers excluded non-commute walking); DMG's guidance is excl2016 = 0 for comparisons. Never present excl0 + excl1 as the full 2022 total.",
       "Never place full-basis 2022 mode shares on the historical line (walking capture changed).",
     ],
     scores: { surprise: 3, relevance: 4, visual: 3, robustness: 4, accessibility: 3 },
-  },
-  {
-    title: "Elsewhere outside Durham is bigger than Toronto",
-    why: `Trips from Durham to places other than Toronto (and not internal) total ${pct(toOutsidePct)} — York Region, Peel, and beyond — a quiet correction to the Toronto-centric mental map.`,
-    calc: `originTrips − internal − toToronto, summed over municipalities = ${fmt(MUNI_IDS.reduce((s, id) => s + profiles.get(id)!.orbitShares.outside * profiles.get(id)!.originTrips, 0))}`,
-    viz: "Minor beat in the orbit chapter; “outside” slice splits into Toronto vs everywhere else.",
-    headline: "More Durham trips head to the 905 belt and beyond than to Toronto itself.",
-    caveats: ["Aggregates many small flows; destinations range from Newmarket to Peterborough.", "Includes trips beyond the surveyed area (code 998)."],
-    scores: { surprise: 4, relevance: 3, visual: 2, robustness: 4, accessibility: 3 },
   },
 ];
 
@@ -359,42 +375,6 @@ ranked.forEach((f, i) => {
   say();
 });
 
-// ------------------------------------------------------------------ helpers ---
-function isDurhamCode(code: number): boolean {
-  const codes = [17, 18, 19, 20, 21, 22, 23, 24];
-  return codes.includes(code);
-}
-
-function sumFilter(ds: OdDataset, filter: (o: number, d: number) => boolean) {
-  const trips = Object.fromEntries(MODE_GROUP_ORDER.map((g) => [g, 0])) as Record<ModeGroup, number>;
-  let total = 0;
-  for (const block of ds.byMode.blocks) {
-    for (const c of block.cells) {
-      if (!filter(c.origin, c.dest)) continue;
-      const g = (
-        {
-          "Auto driver": "drive",
-          "Auto passenger": "ride",
-          "Transit excluding GO rail": "transit",
-          "GO rail only": "transit",
-          "Joint GO rail and local transit": "transit",
-          Walk: "walk",
-          Cycle: "cycle",
-          "School bus": "schoolBus",
-          "Taxi passenger": "other",
-          "Paid rideshare": "other",
-          Motorcycle: "other",
-          "E-scooter": "other",
-          Other: "other",
-        } as Record<string, ModeGroup>
-      )[block.mode]!;
-      trips[g]! += c.trips;
-      total += c.trips;
-    }
-  }
-  return { trips, total };
-}
-
 writeFileSync(OUT, lines.join("\n") + "\n");
 console.log(`analyze-od: wrote docs/od-findings.md (${findings.length} candidate findings)`);
-console.log(`analyze-od: internal ${pct(internalShare, 2)} · toToronto ${fmt(toToronto)} · top pair ${MUNI_NAMES[pairs[0]!.a]!}↔${MUNI_NAMES[pairs[0]!.b]!} ${fmt(pairs[0]!.totalTwoWay)}`);
+console.log(`analyze-od: internal ${pct(internalShare, 2)} · toToronto ${fmt(toToronto)} vs elsewhereOutside ${fmt(elsewhereOutsideDurham)} · top pair ${MUNI_NAMES[pairs[0]!.a]!}↔${MUNI_NAMES[pairs[0]!.b]!} ${fmt(pairs[0]!.totalTwoWay)}`);

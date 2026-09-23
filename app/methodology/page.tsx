@@ -40,7 +40,7 @@ export default function MethodologyPage() {
           <p>
             DMG publishes per-region summary CSVs. For Durham we used every published cycle for the region
             (1986–2022) at the area-municipality level — which is what DMG labels Durham&apos;s planning
-            districts — and ward-level files from 2001 onward (2022 ward structure: 33 wards). We also used
+            districts — and ward-level files from 2001 onward (2022 ward structure: 34 wards). We also used
             DMG&apos;s planning-district boundary shapefile for maps. Each file&apos;s checksum and
             download date are recorded in the machine-readable{" "}
             <a href="/data/manifest.json" className="underline decoration-accent underline-offset-2">
@@ -77,23 +77,31 @@ export default function MethodologyPage() {
 
         <Block title="Comparing across survey cycles">
           <p>
-            Every metric carries a comparability flag:
+            Every metric carries a comparability flag, and trip measures additionally carry a
+            collection-basis id (the 2022 TTS Data Guide, §1.5, documents the age coverage):
           </p>
           <ul className="list-disc space-y-2 pl-6">
             <li>
               <strong>Strong:</strong> household and person measures (population, households, vehicles,
-              licensed drivers, employment, commuting). Definitions are stable 1986–2022.
+              licensed drivers, employment, commuting). Definitions are broadly stable 1986–2022 — but
+              not identical in every cycle: the data guide documents survey and weighting changes and
+              cycle-specific restrictions (for example 2011 household-attribute restrictions and the
+              2016 income-band change, which we flag as caution). Category gaps (townhouse not
+              collected in 1986) are preserved as not-collected cells.
             </li>
             <li>
-              <strong>Caution:</strong> all trip measures from 1986–2016. These cycles collected trips for
-              household members aged 11+ with consistent mode definitions, but wording, expansion and peak
-              windows evolved (e.g. the 2016 PM peak runs 15:00–17:59 vs 2022&apos;s 15:00–18:59).
+              <strong>Caution:</strong> trip measures within one collection basis. The 1991–2016 cycles
+              collected trips for household members aged 11+ with consistent mode definitions, though
+              wording, expansion and peak windows evolved (e.g. the 2016 PM peak runs 15:00–17:59 vs
+              2022&apos;s 15:00–18:59).
             </li>
             <li>
-              <strong>Not comparable:</strong> all 2022 trip measures. The 2022 TTS collected trips for ages
-              5+ and captured walking trips more completely. Adding ages 5–10 alone mechanically depresses
-              every mode share (more total trips, few of them by transit). We never draw 2022 trip counts or
-              mode shares on the same line as earlier cycles.
+              <strong>Not comparable:</strong> trips from the other bases. <strong>1986</strong> collected
+              trips for persons aged <strong>6+</strong> — not 11+ — so 1986 trip totals and shares are
+              drawn as isolated markers, never connected to the 1991–2016 line. <strong>2022</strong>{" "}
+              collected trips for ages <strong>5+</strong> and captured walking trips more completely;
+              adding ages 5–10 alone mechanically depresses every mode share. We never draw 2022 trip
+              counts or mode shares connected to earlier cycles.
             </li>
           </ul>
         </Block>
@@ -102,21 +110,24 @@ export default function MethodologyPage() {
           <ul className="list-disc space-y-2 pl-6">
             <li>
               Top-coded categories (&quot;5 or more&quot; vehicles/drivers per household) count as 5 when
-              computing means. This biases means slightly low — uniformly for every community — so
-              comparisons are unaffected.
+              computing means. This biases means low; the bias need not be identical across
+              communities, so treat small differences between communities with care.
             </li>
             <li>
               &quot;Transit&quot; in our mode stories is the sum of local transit, GO Rail and combined
               GO+local trips.
             </li>
             <li>
-              Commute-to-Toronto shares use workers with a usual place of work inside the surveyed area as
-              the denominator.
+              Work-at-home shares use full-time plus part-time &quot;usually work at home&quot; over all
+              employed residents. The 1986 share is not shown: its part-time-at-home cell is suppressed,
+              which affects both numerator and denominator, so no defensible value can be computed.
             </li>
             <li>
-              Work-at-home shares use full-time plus part-time &quot;usually work at home&quot; over all
-              employed residents. The 1986 region value is approximate because its part-time-at-home cell
-              was suppressed.
+              Commute-to-Toronto shares are employed residents whose usual workplace is in Toronto, as a
+              share of all employed residents. (The alternative denominator — workers with a usual
+              workplace inside the surveyed area — is a sum over 23 area cells, at least one of which is
+              suppressed for every municipality, so it can never be complete; per our suppression
+              policy it is not used as a denominator.)
             </li>
             <li>
               In the OD chapters, &quot;Durham&quot; means the eight area municipalities, and trips belong
@@ -157,13 +168,17 @@ export default function MethodologyPage() {
         <Block title="The comparable-basis 2022 comparison">
           <p>
             The long view&apos;s 2016 ↔ 2022 comparison uses a 2022 extract filtered to{" "}
-            <code className="rounded bg-paper-dim px-1">excl2016 = 0</code> — DMG&apos;s flag for records
-            collected on a basis comparable with 2016 and earlier cycles. This matters most for walking:
-            full-basis 2022 walking (120,195 trips, 8.3%) uses the new fuller capture, while the
-            comparable extract records 67,089 walking trips (5.2%). Full-basis 2022 figures are never
-            placed on a chart line with earlier cycles anywhere on this site. Note that the comparable
-            2022 comparison still describes a post-pandemic travel environment; the survey alone cannot
-            attribute causes.
+            <code className="rounded bg-paper-dim px-1">excl2016 = 0</code>. The data guide defines the
+            flag with values 0, 1 and 2: 0 marks trips on the pre-2022 (2016-comparable) basis, while
+            codes 1 and 2 mark excluded trips — code 2 covers excluded non-commute walking. DMG&apos;s
+            guidance for comparing 2022 with earlier cycles is to filter excl2016 = 0. This matters most
+            for walking: full-basis 2022 walking (120,195 trips, 8.3%) uses the new fuller capture,
+            while the comparable extract records 67,089 walking trips (5.2%). (Our reconciliation —
+            full-basis walking exceeding the excl-0 + excl-1 counts by 27,713 — is consistent with that
+            remainder being the guide&apos;s code 2, though the extracts themselves do not carry flag
+            values.) Full-basis 2022 figures are never connected to earlier cycles anywhere on this
+            site. The comparable comparison still describes a post-pandemic travel environment; the
+            survey alone cannot attribute causes.
           </p>
         </Block>
 
@@ -189,9 +204,10 @@ export default function MethodologyPage() {
             The full ETL pipeline — source manifest, download checksums, label crosswalk, normalization and
             validation — runs at build time and is open source in the repository. Validation asserts that
             no suppressed cell becomes zero, that mode/purpose/vehicle partitions reconcile with published
-            totals within tolerance, and that ward totals match municipal totals. The normalized dataset
-            (97,713 records across 46 geographies and 8 cycles) and every curated JSON file under{" "}
-            <code className="rounded bg-paper-dim px-1">/data/</code> are downloadable.
+            totals within tolerance, and that ward totals match municipal totals. The curated JSON files
+            the site consumes are under <code className="rounded bg-paper-dim px-1">/data/</code> and can
+            be fetched directly; the normalized record set lives in the repository&apos;s ETL output
+            rather than a public download.
           </p>
           <p className="mt-3">
             DMG&apos;s own 2022 Data Guide defines the underlying categories; where the guide and our

@@ -22,16 +22,42 @@ export interface OdDestinationFlow {
 export interface OdMunicipalityProfile {
   id: string;
   name: string;
+  /** Expanded weekday trips ORIGINATING in this municipality (Durham-household members). */
   originTrips: number;
+  /** Expanded weekday trips by Durham-household members ENDING in this
+   *  municipality — includes trips that started here; not all inbound visitors. */
   destinationTrips: number;
   sameMunicipality: number;
   elsewhereInDurham: number;
   toronto: number;
   otherExternal: number;
   orbitShares: { same: number; durham: number; toronto: number; outside: number };
+  /** Complete aggregated outbound distribution, sorted by trips (unique keys). */
+  destinations: OdDestinationFlow[];
+  /** Display slice of `destinations`. */
   topDestinations: OdDestinationFlow[];
   modeGroupShares: Record<OdModeGroup, number>;
   modeGroupTrips: Record<OdModeGroup, number>;
+}
+
+/** Region-level orbit over Durham-origin trips (same scope as municipal orbits). */
+export interface OdRegionProfile {
+  sameMunicipality: number;
+  elsewhereInDurham: number;
+  toronto: number;
+  elsewhereSurveyArea: number;
+  beyondSurveyArea: number;
+  durhamOriginTrips: number;
+  orbitShares: { same: number; durham: number; toronto: number; outside: number };
+  destinations: Omit<OdDestinationFlow, "share" | "groupLabel">[];
+}
+
+/** Mutually exclusive composition of ALL Durham-household trips. */
+export interface OdLocalComposition {
+  sameMunicipality: number;
+  betweenDurhamMunicipalities: number;
+  outsideInvolving: number;
+  totalTrips: number;
 }
 
 export interface OdDestinationProfile {
@@ -49,6 +75,7 @@ export interface OdModeContext {
   description: string;
   trips: number;
   groups: Record<OdModeGroup, number>;
+  disjoint: boolean;
 }
 
 export interface OdFlows {
@@ -65,13 +92,25 @@ export interface OdFlows {
     durhamOriginTrips: number;
   };
   pairs: OdPairFlow[];
+  regionProfile: OdRegionProfile;
+  localComposition: OdLocalComposition;
   profiles: OdMunicipalityProfile[];
   destinationProfiles: OdDestinationProfile[];
   modeContexts: OdModeContext[];
   comparable2022: { total: number; modes: Record<string, number>; groups: Record<OdModeGroup, number> };
   full2022Modes: { total: number; modes: Record<string, number> };
-  displayThreshold: number;
-  matrix: { columns: string[]; values: number[][] };
+  display: {
+    floor: number;
+    appliesTo: string[];
+    note: string;
+  };
+  matrix: {
+    rowIds: string[];
+    columnIds: string[];
+    rowLabels: string[];
+    columnLabels: string[];
+    values: number[][];
+  };
 }
 
 export type ShareStatus = "observed" | "suppressed" | "not_available" | "missing" | "partial";
@@ -81,6 +120,17 @@ export interface Share {
   status: ShareStatus;
 }
 
+/**
+ * Status conventions (scripts/lib/estimates.ts):
+ *  - status "observed" → value is a complete estimate;
+ *  - status "partial" with a value → observed subtotal, an approximate
+ *    lower bound (a suppressed/not-collected component is excluded);
+ *  - status "partial" with null → withheld: an incomplete denominator (or a
+ *    suppressed cell shared by numerator and denominator) makes the share
+ *    non-computable without inventing a bias direction;
+ *  - suppressed / not_available / missing → value null, source state kept.
+ */
+
 export interface Profile {
   geographyId: string;
   geographyName: string;
@@ -88,6 +138,7 @@ export interface Profile {
   municipality?: string;
   surveyYear: number;
   tripComparability: "caution" | "not_comparable";
+  tripBasisId: string;
   households: number | null;
   persons: number | null;
   drivers: number | null;
@@ -124,8 +175,10 @@ export interface Profile {
   amPeakShare: Share;
   purposes: { hbw: number | null; hbs: number | null; hbd: number | null; nhb: number | null };
   employed: number | null;
+  employedPartial: boolean;
   workAtHomeShare: Share;
   workersWithUsualPlace: number | null;
+  workersWithUsualPlacePartial: boolean;
   torontoWorkShare: Share;
   durhamWorkShare: Share;
   childrenShare: Share;
@@ -133,7 +186,20 @@ export interface Profile {
   drivingAgeLicenceRate: Share;
 }
 
+/** Explicit 2016 endpoints for municipal change stories. */
+export interface Prior2016 {
+  workAtHomeShare: Share;
+  zeroVehicleHouseholdShare: Share;
+  torontoWorkShare: Share;
+  seniorsShare: Share;
+  persons: number | null;
+  households: number | null;
+  avgVehiclesPerHousehold: number | null;
+  modeShares: { autoDriver: Share; transit: Share; walk: Share };
+}
+
 export interface MunicipalityProfile extends Profile {
+  prior2016: Prior2016;
   change2016to2022: {
     persons: number | null;
     households: number | null;
@@ -163,7 +229,8 @@ export interface TrendSeries {
   unit: "persons" | "households" | "vehicles" | "percent" | "trips";
   comparability: "strong" | "caution" | "not_comparable";
   note: string;
-  points: { year: number; value: number | null; status: string }[];
+  anchorBasis: string;
+  points: { year: number; value: number | null; status: string; basisId: string; comparable: boolean }[];
 }
 
 export interface HistoricalTrends {
@@ -227,3 +294,25 @@ export const MUNICIPALITY_ORDER = [
   "oshawa",
   "clarington",
 ] as const;
+
+// --------------------------------------------------------------------------
+// insights.json (generated by scripts/build-insights.ts)
+// --------------------------------------------------------------------------
+
+export interface InsightBase {
+  id: string;
+  question: string;
+  takeaway: string;
+  universe: string;
+  denominatorNote: string;
+  basis: string;
+  caveats: string[];
+  sourceIds: string[];
+}
+
+export interface InsightsFile {
+  generatedAt: string;
+  note: string;
+  insights: (InsightBase & { values: Record<string, unknown> })[];
+  unavailable: { question: string; reason: string }[];
+}

@@ -27,17 +27,21 @@ export const fmtX = (v: number | null | undefined, digits = 2): string =>
 export const fmtShare = (s: { value: number | null; status: string }, digits = 1): string => {
   if (s.value === null) {
     if (s.status === "suppressed") return "suppressed";
+    if (s.status === "partial") return "not computable";
     return "—";
   }
   const pct = (s.value * 100).toFixed(digits);
   return s.status === "partial" ? `≈${pct}%` : `${pct}%`;
 };
 
-export const shareStatusNote = (s: { status: string }): string | null => {
+export const shareStatusNote = (s: { value: number | null; status: string }): string | null => {
   if (s.status === "suppressed")
     return "Suppressed because the underlying survey count was too small.";
-  if (s.status === "partial")
-    return "Approximate: a small category (under four survey records) is excluded.";
+  if (s.status === "partial") {
+    return s.value === null
+      ? "Not computable from the published cells: a component of the total is unavailable (suppressed or not collected), so the share's bias direction is unknown."
+      : "Approximate lower bound: a small component (suppressed or not collected) is excluded, so the true share is at least this large.";
+  }
   if (s.status === "not_available") return "Not collected in this survey cycle.";
   return null;
 };

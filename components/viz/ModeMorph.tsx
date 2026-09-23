@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fmtInt, fmtPct } from "@/lib/format";
 import type { OdFlows, OdModeContext, OdModeGroup } from "@/lib/types";
 
@@ -16,54 +16,61 @@ const GROUP_COLOR: Record<OdModeGroup, string> = {
   other: "var(--color-other-misc)",
 };
 
-const GROUP_BLURB: Record<OdModeGroup, string> = {
-  drive: "Driving alone — the private car as the driver.",
-  ride: "Riding as a passenger — carpooling, drop-offs, shared rides.",
-  transit: "Durham Region Transit, GO trains and buses, and trips combining both.",
-  walk: "Trips made entirely on foot.",
-  cycle: "Trips by bicycle, including e-bikes.",
-  schoolBus: "Yellow-bus trips, mostly to school.",
-  other: "Taxis, ride-hailing, motorcycles, e-scooters and unclassified trips.",
-};
-
 /**
  * Chapter — “Where we're going changes how we get there”. One stacked bar
- * that morphs between destination contexts. On first scroll into view it
- * performs the internal → Toronto morph once (skipped under reduced motion).
+ * across DISJOINT destination contexts (same municipality / another Durham
+ * municipality / Toronto / elsewhere / beyond the survey area — they partition
+ * Durham-origin trips). Final information is visible by default; the one-time
+ * demonstration morph is optional and cancels immediately on interaction or
+ * unmount (audit A07: the old stale timeout overwrote manual selections).
  */
 export function ModeMorph({ contexts }: { contexts: OdFlows["modeContexts"] }) {
-  const byKey = new Map(contexts.map((c) => [c.key, c]));
-  const baseline = byKey.get("internalDurham") ?? contexts[0]!;
+  const disjoint = useMemo(() => contexts.filter((c) => c.disjoint), [contexts]);
+  const byKey = useMemo(() => new Map(disjoint.map((c) => [c.key, c])), [disjoint]);
+  const baseline = byKey.get("sameMunicipality") ?? disjoint[0]!;
   const [activeKey, setActiveKey] = useState(baseline.key);
-  const [touched, setTouched] = useState(false);
+  const touchedRef = useRef(false);
+  const timerRef = useRef<number | null>(null);
   const hostRef = useRef<HTMLDivElement>(null);
 
   const active = byKey.get(activeKey) ?? baseline;
   const activeShare = (g: OdModeGroup) => (active.trips > 0 ? active.groups[g]! / active.trips : 0);
   const baseShare = (g: OdModeGroup) => (baseline.trips > 0 ? baseline.groups[g]! / baseline.trips : 0);
 
-  // One-time demonstration morph when the chapter enters the viewport.
+  // Optional one-time demonstration morph when the chapter enters the
+  // viewport. The timer is tracked in a ref and cancelled on any manual
+  // selection, on unmount, and when the preference changes.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = hostRef.current;
     if (!el) return;
-    const observer = new IntersectionObserver(
+    let observer: IntersectionObserver | null = null;
+    observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        observer.disconnect();
-        window.setTimeout(() => {
-          if (!touched) setActiveKey("toToronto");
+        observer?.disconnect();
+        timerRef.current = window.setTimeout(() => {
+          if (!touchedRef.current) setActiveKey("toToronto");
         }, 900);
       },
       { threshold: 0.5 },
     );
     observer.observe(el);
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      observer.disconnect();
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, []);
 
   const select = (key: string) => {
-    setTouched(true);
+    touchedRef.current = true;
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     setActiveKey(key);
   };
 
@@ -71,15 +78,15 @@ export function ModeMorph({ contexts }: { contexts: OdFlows["modeContexts"] }) {
 
   return (
     <div ref={hostRef}>
-      {/* context selector */}
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Choose a destination">
-        {contexts.map((c) => {
+      {/* context selector — plain buttons (not tabs) */}
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Choose a destination context">
+        {disjoint.map((c) => {
           const isActive = c.key === activeKey;
           return (
             <button
               key={c.key}
-              role="tab"
-              aria-selected={isActive}
+              type="button"
+              aria-pressed={isActive}
               onClick={() => select(c.key)}
               className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                 isActive
@@ -94,7 +101,7 @@ export function ModeMorph({ contexts }: { contexts: OdFlows["modeContexts"] }) {
       </div>
 
       <p className="mt-4 min-h-[2.6rem] max-w-[52ch] text-sm text-chalk-dim" aria-live="polite">
-        {active.description} — {fmtInt(active.trips)} weekday trips.
+        {fmtInt(active.trips)} weekday trips {active.description}.
       </p>
 
       {/* the morphing bar */}
@@ -112,7 +119,7 @@ export function ModeMorph({ contexts }: { contexts: OdFlows["modeContexts"] }) {
             return (
               <div
                 key={g}
-                className="relative h-full transition-[width] duration-700 ease-out"
+                className="relative h-full transition-[width] duration-700 ease-out motion-reduce:transition-none"
                 style={{ width: `${widthPct}%`, backgroundColor: GROUP_COLOR[g]! }}
               >
                 {showLabel && (
@@ -141,7 +148,7 @@ export function ModeMorph({ contexts }: { contexts: OdFlows["modeContexts"] }) {
           })}
         </div>
 
-        {/* per-mode legend with counts + deltas vs internal Durham */}
+        {/* per-mode legend with counts + deltas vs the same-municipality baseline */}
         <ul className="mt-5 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
           {GROUP_ORDER.map((g) => {
             const share = activeShare(g);
@@ -168,7 +175,7 @@ export function ModeMorph({ contexts }: { contexts: OdFlows["modeContexts"] }) {
         </ul>
       </div>
 
-      {/* editorial read of the internal → Toronto contrast */}
+      {/* editorial read of the same-municipality → Toronto contrast */}
       {toToronto && (
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           <MorphStat
@@ -211,15 +218,15 @@ function MorphStat({
           ? `${factor.toFixed(1)}× the share when the destination is Toronto`
           : group === "walk"
             ? "a share so small it rounds away"
-            : `${(toShare / fromShare).toFixed(2)}× the internal share`}
+            : `${(toShare / fromShare).toFixed(2)}× the same-municipality share`}
       </p>
     </div>
   );
 }
 
 const LABELS: Record<OdModeGroup, string> = {
-  drive: "Drive",
-  ride: "Ride",
+  drive: "Car driver",
+  ride: "Car passenger",
   transit: "Transit",
   walk: "Walk",
   cycle: "Cycle",

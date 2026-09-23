@@ -44,7 +44,7 @@ export interface PathOptions {
 
 export function projectGeometry(geom: MultiPolyGeom, bb: BBox, opts: PathOptions): Ring[] {
   const pad = opts.padding ?? 0;
-  const lon0 = opts.lon0 ?? (bb.minX + bb.maxX) / 2;
+  void opts.lon0; // reserved for future projection variants
   const kx = Math.cos((((bb.minY + bb.maxY) / 2) * Math.PI) / 180);
   const sx = (opts.width - pad * 2) / ((bb.maxX - bb.minX) * kx);
   const sy = (opts.height - pad * 2) / (bb.maxY - bb.minY);

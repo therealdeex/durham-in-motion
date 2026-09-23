@@ -62,25 +62,40 @@ export function LongView({ trends }: { trends: HistoricalTrends }) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const series = seriesById.get(seriesId)!;
+  // Markers for every numeric point; the connecting line only spans runs of
+  // consecutive comparable, observed points — never across a method break or
+  // an unavailable year (docs/tts-audit-2026-09.md A05, A10).
   const points = series.points.filter((p) => p.value !== null);
   const years = series.points.map((p) => p.year);
   const minY = Math.min(...years);
   const maxY = Math.max(...years);
 
   const values = points.map((p) => p.value as number);
-  const includeZero = series.unit === "percent" || series.unit === "vehicles";
-  const vMin = includeZero ? Math.min(0, ...values) : Math.min(...values);
+  const vMin = Math.min(0, ...values);
   const vMax = Math.max(...values);
   const lo = vMin - (vMax - vMin) * 0.08;
   const hi = vMax + (vMax - vMin) * 0.12;
 
-  const g: Geom = geom;
-  const pathD = points
-    .map((p, i) => `${i === 0 ? "M" : "L"}${scaleYear(p.year, minY, maxY, geom).toFixed(1)} ${scaleVal(p.value as number, lo, hi, geom).toFixed(1)}`)
-    .join(" ");
+  const segments: string[] = [];
+  let run: { year: number; value: number }[] = [];
+  for (const p of series.points) {
+    if (p.value !== null && p.comparable && p.status !== "not_available") {
+      run.push({ year: p.year, value: p.value });
+    } else if (run.length > 0) {
+      if (run.length >= 2) segments.push(pathOf(run));
+      run = [];
+    }
+  }
+  if (run.length >= 2) segments.push(pathOf(run));
+
+  function pathOf(pts: { year: number; value: number }[]): string {
+    return pts
+      .map((p, i) => `${i === 0 ? "M" : "L"}${scaleYear(p.year, minY, maxY, geom).toFixed(1)} ${scaleVal(p.value, lo, hi, geom).toFixed(1)}`)
+      .join(" ");
+  }
 
   const valueFmt = (v: number | null): string => {
-    if (v === null) return "suppressed";
+    if (v === null) return "not available";
     if (series.unit === "percent") return `${(v * 100).toFixed(1)}%`;
     if (series.unit === "vehicles") return v.toFixed(2);
     return fmtInt(v);
@@ -90,11 +105,13 @@ export function LongView({ trends }: { trends: HistoricalTrends }) {
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
-    const px = "clientX" in e ? e.clientX - rect.left : 0;
-    const year = Math.round(minY + ((px / rect.width) * (maxY - minY)));
-    let best = points[0];
+    // Map pointer position into the plot's padded range, not the whole SVG.
+    const pxInPlot = ("clientX" in e ? e.clientX - rect.left : rect.width / 2) * (W / rect.width) - PAD.left;
+    const t = Math.max(0, Math.min(1, pxInPlot / (W - PAD.left - PAD.right)));
+    const year = Math.round(minY + t * (maxY - minY));
+    let best: (typeof series.points)[number] | undefined;
     for (const p of points) {
-      if (Math.abs(p.year - year) < Math.abs(best.year - year)) best = p;
+      if (!best || Math.abs(p.year - year) < Math.abs(best.year - year)) best = p;
     }
     if (!best) return;
     setHover({
@@ -190,28 +207,51 @@ export function LongView({ trends }: { trends: HistoricalTrends }) {
             </g>
           )}
 
-          {/* caution band label for pre-2022-only series */}
+          {/* caution band label for trip-basis series */}
           {isTripSeries && points.length > 0 && (
             <text x={PAD.left + 6} y={PAD.top + 2} fontSize={geom.font.note} fill="#e0b445">
-              {W < 500 ? "1986–2016 only" : "comparable cycles: 1986–2016 (trips of persons 11+)"}
+              {W < 500 ? "1991–2016 line" : "connected line: 1991–2016 (trips of persons 11+)"}
             </text>
           )}
 
-          {/* the line */}
-          <path d={pathD} fill="none" stroke="#f5b043" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
-
-          {/* points; open circles for partial estimates */}
-          {points.map((p) => (
-            <circle
-              key={p.year}
-              cx={scaleYear(p.year, minY, maxY, geom)}
-              cy={scaleVal(p.value as number, lo, hi, geom)}
-              r={hover?.year === p.year ? 5.5 : 3.6}
-              fill={p.status === "partial" ? "#0f1418" : "#f5b043"}
-              stroke="#f5b043"
-              strokeWidth="2"
-            />
+          {/* the line — one segment per comparable run; gaps across breaks */}
+          {segments.map((d, i) => (
+            <path key={i} d={d} fill="none" stroke="#f5b043" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
           ))}
+
+          {/* points: filled when on the series basis; open diamonds for
+              observed values from a different collection basis */}
+          {points.map((p) => {
+            const cx = scaleYear(p.year, minY, maxY, geom);
+            const cy = scaleVal(p.value as number, lo, hi, geom);
+            if (!p.comparable) {
+              const r = hover?.year === p.year ? 7 : 5;
+              return (
+                <rect
+                  key={p.year}
+                  x={cx - r / 1.4}
+                  y={cy - r / 1.4}
+                  width={(r / 1.4) * 2}
+                  height={(r / 1.4) * 2}
+                  transform={`rotate(45 ${cx} ${cy})`}
+                  fill="#0f1418"
+                  stroke="#f5b043"
+                  strokeWidth="2"
+                />
+              );
+            }
+            return (
+              <circle
+                key={p.year}
+                cx={cx}
+                cy={cy}
+                r={hover?.year === p.year ? 5.5 : 3.6}
+                fill={p.status === "partial" ? "#0f1418" : "#f5b043"}
+                stroke="#f5b043"
+                strokeWidth="2"
+              />
+            );
+          })}
 
           {/* hover marker */}
           {hover && (
@@ -234,13 +274,16 @@ export function LongView({ trends }: { trends: HistoricalTrends }) {
 
       <div className="mt-4 grid gap-2 text-xs leading-relaxed text-chalk-dim md:grid-cols-2">
         <p>
-          <span aria-hidden className="text-walk">‡</span> Trip-based measures come from cycles collected for
-          household members aged 11+. The 2022 survey collected trips for ages 5+ and captured walking more
-          completely, so 2022 trip counts and mode shares are shown separately, never on the same line.
+          <span aria-hidden className="text-walk">‡</span> Trip-based measures: the connected line
+          covers 1991–2016, when trips were collected for household members aged 11+. 1986
+          collected ages 6+ and 2022 collected ages 5+ with fuller walking capture — those points
+          (open diamonds) are shown for context and are never connected to the line.
         </p>
         <p>
-          Demographic measures (population, households, vehicles, work at home, commuting) are collected the
-          same way in every cycle and are directly comparable.
+          Household and person measures are broadly stable across cycles, with cycle-specific
+          collection changes documented in DMG&apos;s data guide (for example 2011 household-attribute
+          restrictions and the 2016 income-band change). Gaps appear where a value is unavailable
+          or not computable from published cells.
         </p>
       </div>
 
@@ -250,17 +293,33 @@ export function LongView({ trends }: { trends: HistoricalTrends }) {
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[480px] text-left text-chalk-dim">
             <caption className="sr-only">{series.label} by survey year</caption>
-            <thead>
-              <tr className="border-b border-night-line">
-                <th scope="col" className="py-1.5 pr-4 font-medium">Survey year</th>
-                <th scope="col" className="py-1.5 font-medium">{series.label}</th>
-              </tr>
-            </thead>
+              <thead>
+                <tr className="border-b border-night-line">
+                  <th scope="col" className="py-1.5 pr-4 font-medium">Survey year</th>
+                  <th scope="col" className="py-1.5 font-medium">{series.label}</th>
+                  <th scope="col" className="py-1.5 font-medium">Note</th>
+                </tr>
+              </thead>
             <tbody>
               {series.points.map((p) => (
                 <tr key={p.year} className="border-b border-night-line/50">
                   <td className="py-1.5 pr-4">{p.year}</td>
                   <td className="py-1.5 text-chalk">{valueFmt(p.value)}</td>
+                  <td className="py-1.5 text-xs text-chalk-dim">
+                    {p.value === null
+                      ? p.status === "partial"
+                        ? "not computable from published cells"
+                        : p.status === "suppressed"
+                          ? "suppressed"
+                          : p.status === "not_available"
+                            ? "not collected"
+                            : "not available"
+                      : p.status === "partial"
+                        ? "approximate (lower bound)"
+                        : !p.comparable
+                          ? "different collection basis"
+                          : ""}
+                  </td>
                 </tr>
               ))}
             </tbody>

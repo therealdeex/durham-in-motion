@@ -21,6 +21,12 @@ export interface SourceDef {
   /** Excluded from per-record source attribution: cross-check copies and
    *  non-tabular (query-produced) extracts such as iDRS origin–destination runs. */
   supplementaryOnly?: boolean;
+  /** How the file is acquired:
+   *  - "public": fetchable by URL without credentials (data:fetch downloads it);
+   *  - "manual": produced through an authenticated/imported session — never
+   *    fetched automatically; absence yields an import inventory, not a
+   *    download attempt. */
+  acquisition?: "public" | "manual";
 }
 
 const DMG_ORG = "Data Management Group, University of Toronto";
@@ -141,6 +147,7 @@ export const SOURCES: SourceDef[] = [
     rawPath: "data/raw/idrs/tts2022_od_pd_durham-residents.csv",
     note: "Cross-tabulation: row = pd_orig, column = pd_dest, filter region_hhld in Durham, expansion factors on. Total reconciles with the public 2022 trip table to within 12 trips.",
     supplementaryOnly: true,
+    acquisition: "manual",
   },
   {
     id: "tts-2022-idrs-od-pd-mode",
@@ -155,6 +162,7 @@ export const SOURCES: SourceDef[] = [
     rawPath: "data/raw/idrs/tts2022_od_pd_durham-residents_by-mode.csv",
     note: "Same query with table attribute mode_prime (13 mode blocks, column format). Block totals fall 9 trips short of the unidimensional matrix (mode-not-stated trips).",
     supplementaryOnly: true,
+    acquisition: "manual",
   },
   {
     id: "tts-2022-idrs-mode-pd-full",
@@ -169,6 +177,7 @@ export const SOURCES: SourceDef[] = [
     rawPath: "data/raw/idrs/tts2022_mode_by-pd_durham-residents_full.csv",
     note: "Validation extract: every mode total reconciles with the public 2022 municipal summary to within 4 trips.",
     supplementaryOnly: true,
+    acquisition: "manual",
   },
   {
     id: "tts-2022-idrs-mode-pd-excl2016",
@@ -181,8 +190,9 @@ export const SOURCES: SourceDef[] = [
     licence: `${DMG_LICENCE} (authenticated iDRS access)`,
     licenceUrl: DMG_LICENCE_URL,
     rawPath: "data/raw/idrs/tts2022_mode_by-pd_durham-residents_excl2016-0.csv",
-    note: "Filters region_hhld in Durham AND excl2016 = 0. First 2016-comparable 2022 mode split for the Long View; see docs/idrs-data.md for the excl2016 0/1/unclassified caveat.",
+    note: "Filters region_hhld in Durham AND excl2016 = 0. First 2016-comparable 2022 mode split for the Long View; see docs/idrs-data.md for the excl2016 code documentation.",
     supplementaryOnly: true,
+    acquisition: "manual",
   },
 ];
 

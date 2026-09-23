@@ -86,19 +86,19 @@ findings.push({
   to: `${wahLast.year}: ${fmtPct(wahLast.value)}`,
   change: `+${((wahLast.value! - wahFirst.value!) * 100).toFixed(1)} pp`,
   comparability: "strong",
-  notes: `Full-time + part-time usually-work-at-home as a share of employed persons. 1986 omitted (${region(1986)!.workAtHomeShare.status} part-time-at-home cell). 2022 reflects post-2020 hybrid work.`,
+  notes: `Full-time + part-time usually-work-at-home as a share of employed persons. 1986 is not computable from the published cells (the part-time-at-home cell is suppressed, affecting numerator and denominator), so the series starts in ${wahFirst.year}. 2022 reflects post-2020 hybrid work.`,
 });
 
 const veh2022 = vehicles[7].value!;
 findings.push({
   id: "vehicles-per-household",
-  headline: `The average Durham household owned ${vehicles[0].value!.toFixed(2)} vehicles in 1986; today it owns ${veh2022.toFixed(2)}.`,
+  headline: `The average Durham household owned ${vehicles[0].value!.toFixed(2)} vehicles in 1986; in the 2022 survey it owned ${veh2022.toFixed(2)}.`,
   metric: "avg_vehicles_per_household",
   from: `1986: ${vehicles[0].value!.toFixed(2)}`,
   to: `2022: ${veh2022.toFixed(2)}`,
   change: `${veh2022 - vehicles[0].value! >= 0 ? "+" : ""}${(veh2022 - vehicles[0].value!).toFixed(2)}`,
   comparability: "strong",
-  notes: "Top-coded '5 or more' counted as 5, so means are slightly low; applied uniformly.",
+  notes: "Top-coded '5 or more' counted as 5, so means are slightly low; the bias need not be identical across communities.",
 });
 
 // ---- 2. geographic extremes 2022 ----
@@ -139,7 +139,7 @@ const gaps = [
   rankBy((p) => p.modeShares.transit, "Transit share of weekday trips", "transit_share", "Share of resident weekday trips by local transit + GO (2022)."),
   rankBy((p) => p.zeroVehicleHouseholdShare, "Households with no vehicle", "zero_vehicle_share", "Share of households reporting zero vehicles (2022)."),
   rankBy((p) => p.modeShares.walk, "Walking share of weekday trips", "walk_share", "Share of resident weekday trips on foot (2022)."),
-  rankBy((p) => p.torontoWorkShare, "Workers commuting to Toronto", "toronto_commute_share", "Usual place of work in Toronto, share of workers with a usual place inside the survey area (2022)."),
+  rankBy((p) => p.torontoWorkShare, "Workers commuting to Toronto", "toronto_commute_share", "Employed residents whose usual workplace is in Toronto, as a share of all employed residents (2022). The stricter usual-workplace denominator is never complete (suppressed area cells), so employed residents is the denominator."),
   rankBy((p) => p.avgVehiclesPerHousehold, "Vehicles per household", "vehicles_per_hh", "Mean vehicles per household (2022), top-coded at 5.", 5000, (v) => v.toFixed(2)),
 ];
 for (const g of gaps) {
@@ -163,21 +163,23 @@ findings.push({
   notes: "2022 methodology (persons 5+, fuller walking capture). Shares may not sum to 100% due to rounding.",
 });
 
-// ---- 4. historical transit trajectory (1986→2016, caution) ----
-const transitShare = [1986, 1991, 1996, 2001, 2006, 2011, 2016].map((y) => ({
+// ---- 4. historical transit trajectory (1991→2016, caution) ----
+// 1986 collected trips at ages 6+ (Data Guide §1.5) — a different basis that
+// is never joined to the 1991–2016 (11+) series.
+const transitShare = [1991, 1996, 2001, 2006, 2011, 2016].map((y) => ({
   year: y,
   value: region(y)!.modeShares.transit.value,
 }));
-const t1986 = transitShare[0].value!;
+const t1991 = transitShare[0].value!;
 const t2016 = transitShare[transitShare.length - 1].value!;
 findings.push({
   id: "transit-growth-pre2022",
-  headline: `Transit's share of resident weekday trips rose from ${fmtPct(t1986)} in 1986 to ${fmtPct(t2016)} in 2016 (comparable pre-2022 cycles only).`,
-  metric: "transit_share_1986_2016",
-  from: `1986: ${fmtPct(t1986)}`,
+  headline: `Transit's share of resident weekday trips moved from ${fmtPct(t1991)} in 1991 to ${fmtPct(t2016)} in 2016 (comparable 11+ cycles only).`,
+  metric: "transit_share_1991_2016",
+  from: `1991: ${fmtPct(t1991)}`,
   to: `2016: ${fmtPct(t2016)}`,
   comparability: "caution",
-  notes: "Excludes 2022 (methodology break).",
+  notes: "1991–2016 only: 1986 collected trips at ages 6+ and 2022 at ages 5+ with fuller walking capture — both are excluded as different bases.",
 });
 
 // ---- 5. ward extremes (2022) ----

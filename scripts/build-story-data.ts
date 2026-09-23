@@ -6,11 +6,15 @@
  *   public/data/wards-2022.json             — ward profiles
  *
  * All values derive deterministically from data/processed/normalized.json.
+ * Historical comparisons carry both endpoints and their estimate states;
+ * a percent change requires a nonzero *baseline* (2016), and share
+ * differences are percentage points.
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { deriveProfile, groupByGeographyYear, type DerivedProfile, type Share } from "./lib/derive.ts";
 import type { NormalizedRecord } from "./lib/read-files.ts";
+import { pctChange, diffPp, type Estimate } from "./lib/estimates.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const OUT = resolve(ROOT, "public/data");
@@ -38,6 +42,7 @@ const profileOut = (p: DerivedProfile) => ({
   municipality: p.municipality,
   surveyYear: p.surveyYear,
   tripComparability: p.tripComparability,
+  tripBasisId: p.tripBasisId,
   households: p.households,
   persons: p.persons,
   drivers: p.drivers,
@@ -52,8 +57,10 @@ const profileOut = (p: DerivedProfile) => ({
   amPeakShare: shareOut(p.amPeakShare),
   purposes: p.purposes,
   employed: p.employed,
+  employedPartial: p.employedPartial,
   workAtHomeShare: shareOut(p.workAtHomeShare),
   workersWithUsualPlace: p.workersWithUsualPlace,
+  workersWithUsualPlacePartial: p.workersWithUsualPlacePartial,
   torontoWorkShare: shareOut(p.torontoWorkShare),
   durhamWorkShare: shareOut(p.durhamWorkShare),
   childrenShare: shareOut(p.childrenShare),
@@ -71,50 +78,62 @@ writeFileSync(
 );
 
 // ---------- historical-trends.json ----------
+/**
+ * Every series lists all eight cycles. Each point carries its own basis and
+ * status: points on a different collection basis than the series anchor keep
+ * their value but are flagged, so charts draw them as isolated markers —
+ * never connected through a method change.
+ */
 const seriesValue = (
   id: string,
   label: string,
   unit: string,
-  comparability: "strong" | "caution" | "not_comparable",
+  comparability: "strong" | "caution",
   note: string,
   get: (p: DerivedProfile) => number | null | Share,
-  years = ALL_YEARS,
-) => ({
-  id,
-  label,
-  unit,
-  comparability,
-  note,
-  points: years.map((y) => {
-    const v = get(profileOf(y, "durham"));
-    const value = typeof v === "number" ? v : v?.value ?? null;
-    const status = typeof v === "number" ? (value === null ? "missing" : "observed") : v?.status ?? "missing";
-    return { year: y, value, status };
-  }),
-});
+  opts: { tripBasis?: boolean } = {},
+) => {
+  const anchorBasis = "trips-age-11plus";
+  return {
+    id,
+    label,
+    unit,
+    comparability,
+    note,
+    anchorBasis: opts.tripBasis ? anchorBasis : "demographics",
+    points: ALL_YEARS.map((y) => {
+      const p = profileOf(y, "durham");
+      const v = get(p);
+      const value = typeof v === "number" ? v : v?.value ?? null;
+      const status = typeof v === "number" ? (value === null ? "missing" : "observed") : v?.status ?? "missing";
+      const basisId = opts.tripBasis ? p.tripBasisId : "demographics";
+      return { year: y, value, status, basisId, comparable: !opts.tripBasis || basisId === anchorBasis };
+    }),
+  };
+};
 
 const historical = {
   generatedAt: new Date().toISOString(),
   methodologyBreak: {
     year: 2022,
     summary:
-      "In 2022 the TTS collected trips for household members aged 5 and older (11 and older in earlier cycles) and captured walking trips more completely. Trip counts and mode shares from 2022 are not directly comparable with earlier cycles.",
+      "In 2022 the TTS collected trips for household members aged 5 and older (11 and older in 1991–2016; 6 and older in 1986) and captured walking trips more completely. 2022 trip counts and mode shares are not directly comparable with earlier cycles; 1986's 6+ basis also differs from the 1991–2016 series.",
   },
   series: [
     seriesValue("population", "Population (survey estimate)", "persons", "strong", "All household members, all cycles.", (p) => p.persons),
     seriesValue("households", "Households", "households", "strong", "", (p) => p.households),
     seriesValue("licensed_drivers", "Licensed drivers", "persons", "strong", "", (p) => p.drivers),
-    seriesValue("avg_vehicles", "Vehicles per household", "vehicles", "strong", "'5 or more' counted as 5; means slightly low, applied uniformly.", (p) => p.avgVehiclesPerHousehold),
-    seriesValue("zero_vehicle_share", "Households with no vehicle", "percent", "strong", "", (p) => p.zeroVehicleHouseholdShare),
-    seriesValue("work_at_home", "Work at home (share of employed)", "percent", "strong", "1986 part-time-at-home suppressed.", (p) => p.workAtHomeShare),
-    seriesValue("seniors_share", "Population 65+ (share)", "percent", "strong", "", (p) => p.seniorsShare),
-    seriesValue("children_share", "Population 0–14 (share)", "percent", "strong", "", (p) => p.childrenShare),
-    seriesValue("toronto_work_share", "Usual workplace in Toronto (share of workers)", "percent", "strong", "", (p) => p.torontoWorkShare),
-    seriesValue("trips_total", "Weekday trips by residents", "trips", "caution", "Pre-2022 cycles only; 2022 trip counts are not comparable (ages 5+, fuller walking capture).", (p) => p.tripsTotal, ALL_YEARS.filter((y) => y < 2022)),
-    seriesValue("transit_share", "Transit share of weekday trips", "percent", "caution", "Pre-2022 cycles only.", (p) => p.modeShares.transit, ALL_YEARS.filter((y) => y < 2022)),
-    seriesValue("auto_driver_share", "Auto-driver share of weekday trips", "percent", "caution", "Pre-2022 cycles only.", (p) => p.modeShares.autoDriver, ALL_YEARS.filter((y) => y < 2022)),
-    seriesValue("walk_share", "Walking share of weekday trips", "percent", "caution", "Pre-2022 cycles only; 2016 is the most comparable older cycle.", (p) => p.modeShares.walk, ALL_YEARS.filter((y) => y < 2022)),
-    seriesValue("bike_share", "Cycling share of weekday trips", "percent", "caution", "Pre-2022 cycles only.", (p) => p.modeShares.bicycle, ALL_YEARS.filter((y) => y < 2022)),
+    seriesValue("avg_vehicles", "Vehicles per household", "vehicles", "strong", "'5 or more' counted as 5; means slightly low, and the bias need not be identical across communities.", (p) => p.avgVehiclesPerHousehold),
+    seriesValue("zero_vehicle_share", "Households with no vehicle", "percent", "strong", "Share of households.", (p) => p.zeroVehicleHouseholdShare),
+    seriesValue("work_at_home", "Work at home (share of employed)", "percent", "strong", "1986 not computable: the part-time-at-home cell is suppressed, affecting numerator and denominator.", (p) => p.workAtHomeShare),
+    seriesValue("seniors_share", "Population 65+ (share)", "percent", "strong", "Share of all residents; approximate where an older-age cell is suppressed.", (p) => p.seniorsShare),
+    seriesValue("children_share", "Population 0–14 (share)", "percent", "strong", "Share of all residents.", (p) => p.childrenShare),
+    seriesValue("toronto_work_share", "Usual workplace in Toronto (share of employed)", "percent", "strong", "Employed residents whose usual workplace is in Toronto. (The stricter usual-workplace denominator is never complete — small area cells are suppressed — so employed residents is the denominator.)", (p) => p.torontoWorkShare),
+    seriesValue("trips_total", "Weekday trips by residents", "trips", "caution", "1986 (ages 6+) and 2022 (ages 5+) points are drawn from different collection bases and are never connected to the 1991–2016 line.", (p) => p.tripsTotal, { tripBasis: true }),
+    seriesValue("transit_share", "Transit share of weekday trips", "percent", "caution", "1991–2016 line only; 1986 and 2022 points are different-basis markers.", (p) => p.modeShares.transit, { tripBasis: true }),
+    seriesValue("auto_driver_share", "Auto-driver share of weekday trips", "percent", "caution", "1991–2016 line only; 1986 and 2022 points are different-basis markers.", (p) => p.modeShares.autoDriver, { tripBasis: true }),
+    seriesValue("walk_share", "Walking share of weekday trips", "percent", "caution", "1991–2016 line only; 2016 is the most comparable older cycle.", (p) => p.modeShares.walk, { tripBasis: true }),
+    seriesValue("bike_share", "Cycling share of weekday trips", "percent", "caution", "1991–2016 line only.", (p) => p.modeShares.bicycle, { tripBasis: true }),
   ],
 };
 writeFileSync(resolve(OUT, "historical-trends.json"), JSON.stringify(historical));
@@ -131,18 +150,43 @@ const rank = (values: { id: string; value: number | null }[], id: string): numbe
 
 const rankFields = (get: (p: DerivedProfile) => number | null | Share) => {
   const values = munProfiles.map((p) => ({ id: p.geographyId, value: typeof get(p) === "number" ? (get(p) as number) : (get(p) as Share)?.value ?? null }));
-  const regionValue = get(profileOf(2022, "durham"));
-  return { rank: (gid: string) => rank(values, gid), regionValue };
+  return { rank: (gid: string) => rank(values, gid) };
 };
+
+const est = (v: number | null, status: string): Estimate => ({
+  value: v,
+  status: status === "observed" || status === "partial" ? (status as "observed" | "partial") : "missing",
+});
 
 const municipalities = munProfiles.map((p) => {
   const prev = munProfiles2016.get(p.geographyId)!;
-  const pct = (a: number | null, b: number | null) => (a !== null && b !== null && a !== 0 ? (a - b) / b : null);
-  const deltaPct = (get: (x: DerivedProfile) => number | null) => pct(get(p), get(prev));
+  // Relative change needs a nonzero 2016 *baseline* (checked first, not the
+  // current value); share changes are percentage points with carried states.
+  const deltaPct = (get: (x: DerivedProfile) => number | null) =>
+    pctChange(est(get(p), "observed"), est(get(prev), "observed")).value;
   const pp = (get: (x: DerivedProfile) => Share) =>
-    get(p).value !== null && get(prev).value !== null ? (get(p).value as number) - (get(prev).value as number) : null;
+    diffPp(
+      { value: get(p).value, status: get(p).status === "observed" ? "observed" : "partial" },
+      { value: get(prev).value, status: get(prev).status === "observed" ? "observed" : "partial" },
+    ).value;
   return {
     ...profileOut(p),
+    // Explicit prior-year endpoints — never reconstruct them as
+    // value − (change ?? 0). Statuses travel with the values.
+    prior2016: {
+      workAtHomeShare: shareOut(prev.workAtHomeShare),
+      zeroVehicleHouseholdShare: shareOut(prev.zeroVehicleHouseholdShare),
+      torontoWorkShare: shareOut(prev.torontoWorkShare),
+      seniorsShare: shareOut(prev.seniorsShare),
+      persons: prev.persons,
+      households: prev.households,
+      avgVehiclesPerHousehold: prev.avgVehiclesPerHousehold,
+      modeShares: {
+        autoDriver: shareOut(prev.modeShares.autoDriver),
+        transit: shareOut(prev.modeShares.transit),
+        walk: shareOut(prev.modeShares.walk),
+      },
+    },
     change2016to2022: {
       persons: deltaPct((x) => x.persons),
       households: deltaPct((x) => x.households),
@@ -180,10 +224,7 @@ const wardGroups = wardIds.map((id) => {
   return recs ? profileOut(deriveProfile(recs)) : null;
 });
 const wards = wardGroups.filter((x): x is NonNullable<typeof x> => x !== null);
-writeFileSync(
-  resolve(OUT, "wards-2022.json"),
-  JSON.stringify({ generatedAt: new Date().toISOString(), region: region2022, wards }),
-);
+writeFileSync(resolve(OUT, "wards-2022.json"), JSON.stringify({ generatedAt: new Date().toISOString(), region: region2022, wards }));
 
 for (const f of ["region-summary.json", "historical-trends.json", "planning-districts-2022.json", "wards-2022.json"]) {
   const kb = readFileSync(resolve(OUT, f)).length / 1024;

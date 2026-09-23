@@ -7,7 +7,7 @@ import { bboxOf, centroidOf, projectGeometry, ringsToPath } from "@/lib/geo-path
  * the title renders immediately, no map bundle required. Animation is a
  * one-time draw-on plus gentle pulses, disabled under reduced motion.
  */
-export function Hero({ districts }: { districts: { id: string; name: string }[] }) {
+export function Hero() {
   const raw = readFileSync(resolve(process.cwd(), "public/data/durham-outline.geojson"), "utf8");
   const outline = JSON.parse(raw) as {
     geometry: { type: "Polygon" | "MultiPolygon"; coordinates: unknown };

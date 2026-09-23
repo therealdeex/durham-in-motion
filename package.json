@@ -9,8 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "data:manifest": "tsx scripts/build-manifest.ts",
     "data:fetch": "tsx scripts/fetch-data.ts",
+    "data:manifest": "tsx scripts/build-manifest.ts",
     "data:inspect": "tsx scripts/inspect-data.ts",
     "data:normalize": "tsx scripts/normalize-data.ts",
     "data:geography": "tsx scripts/process-geography.ts",
@@ -18,8 +18,11 @@
     "data:od-findings": "tsx scripts/analyze-od.ts",
     "data:story": "tsx scripts/build-story-data.ts",
     "data:findings": "tsx scripts/find-findings.ts",
-    "data:all": "npm run data:manifest && npm run data:fetch && npm run data:normalize && npm run data:geography && npm run data:od && npm run data:story && npm run data:findings && npm run data:inspect",
-    "test": "node --import tsx --test \"tests/data/*.test.ts\""
+    "data:check": "tsx scripts/check-artifacts.ts",
+    "data:all": "npm run data:fetch && npm run data:manifest && npm run data:normalize && npm run data:geography && npm run data:od && npm run data:od-findings && npm run data:story && npm run data:insights && npm run data:findings && npm run data:check && npm run data:inspect",
+    "verify": "npm run lint && npm run typecheck && npm test && npm run data:check && npm run build",
+    "test": "node --import tsx --test \"tests/data/*.test.ts\"",
+    "data:insights": "tsx scripts/build-insights.ts"
   },
   "dependencies": {
     "next": "^15.5.4",
@@ -31,7 +34,8 @@
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "maplibre-gl": "^5.6.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.4",
     "mapshaper": "^0.7.62",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",

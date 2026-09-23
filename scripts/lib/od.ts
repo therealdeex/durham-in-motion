@@ -6,7 +6,7 @@
  * Every headline number on the site is a deterministic function of the raw
  * extracts via this module — nothing editorial is hard-coded.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseCsvLine } from "./read-files.ts";
 
@@ -293,12 +293,31 @@ export interface OdDataset {
   codeName: Map<number, string>;
 }
 
+const IDRS_FILES = [
+  "tts2022_od_pd_durham-residents.csv",
+  "tts2022_od_pd_durham-residents_by-mode.csv",
+  "tts2022_mode_by-pd_durham-residents_full.csv",
+  "tts2022_mode_by-pd_durham-residents_excl2016-0.csv",
+] as const;
+
 export function loadOdDataset(): OdDataset {
+  // Fail with an actionable message BEFORE any output is written when the
+  // manual iDRS imports are absent (audit A09): the app still builds from
+  // committed curated JSON, but the OD steps cannot regenerate.
+  const missing = IDRS_FILES.filter((f) => !existsSync(resolve(IDRS_DIR, f)));
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing ${missing.length} manual iDRS extract(s): ${missing.join(", ")}.\n` +
+        `Expected under ${IDRS_DIR}. These are authenticated imports, never downloaded automatically —\n` +
+        `see docs/idrs-data.md (queries) and docs/data-permissions.md (authorization) to reproduce them.\n` +
+        `No public artifact has been modified.`,
+    );
+  }
   const read = (f: string) => readFileSync(resolve(IDRS_DIR, f), "utf8");
-  const matrix = parseOdMatrix(read("tts2022_od_pd_durham-residents.csv"));
-  const byMode = parseOdByMode(read("tts2022_od_pd_durham-residents_by-mode.csv"));
-  const modeByPdFull = parseModeByPd(read("tts2022_mode_by-pd_durham-residents_full.csv"));
-  const modeByPdComparable = parseModeByPd(read("tts2022_mode_by-pd_durham-residents_excl2016-0.csv"));
+  const matrix = parseOdMatrix(read(IDRS_FILES[0]));
+  const byMode = parseOdByMode(read(IDRS_FILES[1]));
+  const modeByPdFull = parseModeByPd(read(IDRS_FILES[2]));
+  const modeByPdComparable = parseModeByPd(read(IDRS_FILES[3]));
   const codeName = buildCodeNameMap(matrix, byMode);
 
   // Anchors must hold or every downstream grouping is wrong.
@@ -380,33 +399,55 @@ export function getMunicipalityPairFlows(ds: OdDataset): MunicipalityPairFlow[] 
 }
 
 export interface DestinationFlow {
-  /** Municipality id, "toronto", a PD code label, or "external". */
+  /** Stable display-geography key: municipality id, "toronto", "external",
+   *  or "pd-<name>" for a named planning district outside Durham/Toronto. */
   destinationId: string;
   destinationName: string;
   group: DestGroup;
   trips: number;
 }
 
+/**
+ * Outbound flows from one Durham municipality, aggregated to the displayed
+ * geography BEFORE ranking: Toronto's planning districts collapse into a
+ * single "Toronto" entry (summing all 16), other named districts stay
+ * individual, and every destinationId is unique. Audit A02: the previous
+ * per-PD entries produced "Toronto: 3,973 trips" for Pickering — one PD
+ * masquerading as the city instead of the 20,682-trip aggregate.
+ */
 function outboundFlows(ds: OdDataset, muniId: string): DestinationFlow[] {
   const i = ds.matrix.rowNames.indexOf(MUNI_NAMES[muniId]!);
   if (i === -1) throw new Error(`no matrix row for ${muniId}`);
-  const flows: DestinationFlow[] = [];
+  const byId = new Map<string, DestinationFlow>();
+  const push = (flow: DestinationFlow) => {
+    const existing = byId.get(flow.destinationId);
+    if (existing) existing.trips += flow.trips;
+    else byId.set(flow.destinationId, flow);
+  };
   for (let j = 0; j < ds.matrix.colNames.length; j++) {
     const trips = ds.matrix.values[i]![j]!;
     if (trips <= 0) continue;
     const name = ds.matrix.colNames[j]!;
     const muni = muniIdOfName(name);
-    if (muni === muniId) {
-      flows.push({ destinationId: muniId, destinationName: MUNI_NAMES[muniId]!, group: "same", trips });
-    } else if (muni) {
-      flows.push({ destinationId: muni, destinationName: MUNI_NAMES[muni]!, group: "durham", trips });
+    if (muni !== null) {
+      push({
+        destinationId: muni,
+        destinationName: MUNI_NAMES[muni]!,
+        group: muni === muniId ? "same" : "durham",
+        trips,
+      });
     } else if (isTorontoName(name)) {
-      flows.push({ destinationId: "toronto", destinationName: "Toronto", group: "toronto", trips });
+      push({ destinationId: "toronto", destinationName: "Toronto", group: "toronto", trips });
     } else if (name === "External") {
-      flows.push({ destinationId: "external", destinationName: "Beyond the surveyed area", group: "outside", trips });
+      push({ destinationId: "external", destinationName: "Beyond the surveyed area", group: "outside", trips });
     } else {
-      flows.push({ destinationId: `pd-${name}`, destinationName: name, group: "outside", trips });
+      push({ destinationId: `pd-${name}`, destinationName: name, group: "outside", trips });
     }
+  }
+  const flows = [...byId.values()].sort((a, b) => b.trips - a.trips);
+  // Unique-key invariant: one entry per display geography.
+  if (new Set(flows.map((f) => f.destinationId)).size !== flows.length) {
+    throw new Error(`outboundFlows(${muniId}): duplicate destination ids after aggregation`);
   }
   return flows;
 }
@@ -416,7 +457,8 @@ export interface MunicipalityTravelProfile {
   name: string;
   /** Expanded weekday trips originating in this municipality. */
   originTrips: number;
-  /** Expanded weekday trips with destination in this municipality. */
+  /** Expanded weekday trips with destination in this municipality
+   *  (Durham-household trips only — not all inbound visitors). */
   destinationTrips: number;
   sameMunicipality: number;
   elsewhereInDurham: number;
@@ -425,8 +467,10 @@ export interface MunicipalityTravelProfile {
   otherExternal: number;
   /** Shares of originTrips (fractions, 0–1). */
   orbitShares: Record<Exclude<DestGroup, "same">, number> & { same: number };
-  /** Top outbound destinations, sorted by trips (full distribution available). */
-  topDestinations: DestinationFlow[];
+  /** Complete aggregated outbound distribution, sorted by trips. Lists,
+   *  mini-maps and narrative predicates all derive from this — never from a
+   *  truncated slice. */
+  destinations: DestinationFlow[];
   /** Share of origin trips by editorial mode group (denominator: by-mode origin total). */
   modeGroupShares: Record<ModeGroup, number>;
   /** Origin trips by mode group, for tooltips. */
@@ -462,13 +506,6 @@ export function getMunicipalityOriginProfile(ds: OdDataset, muniId: string): Mun
   const outside = sum("outside");
   const originTrips = same + durhamOther + toronto + outside;
 
-  const byCode = new Map<number, number>();
-  for (const f of flows) {
-    if (f.group !== "outside" || f.destinationId === "external") continue;
-    const code = codeForOutsideName(ds, f.destinationName);
-    if (code !== null) byCode.set(code, (byCode.get(code) ?? 0) + f.trips);
-  }
-
   const mode = modeGroupsFor(ds, (o) => muniOriginFilter(muniId)(o));
   const modeGroupShares = Object.fromEntries(
     MODE_GROUP_ORDER.map((g) => [g, mode.total > 0 ? mode.trips[g]! / mode.total : 0]),
@@ -489,18 +526,10 @@ export function getMunicipalityOriginProfile(ds: OdDataset, muniId: string): Mun
       toronto: toronto / originTrips,
       outside: outside / originTrips,
     },
-    topDestinations: [...flows].sort((a, b) => b.trips - a.trips),
+    destinations: flows,
     modeGroupShares,
     modeGroupTrips: mode.trips,
   };
-}
-
-function codeForOutsideName(ds: OdDataset, name: string): number | null {
-  if (name.startsWith("pd-")) return null;
-  for (const [code, label] of ds.codeName) {
-    if (label === name && !TORONTO_CODES.has(code) && !Object.values(MUNI_PD_CODE).includes(code)) return code;
-  }
-  return null;
 }
 
 function inboundTrips(ds: OdDataset, muniId: string): number {
@@ -509,6 +538,133 @@ function inboundTrips(ds: OdDataset, muniId: string): number {
   let sum = 0;
   for (let i = 0; i < ds.matrix.rowNames.length; i++) sum += ds.matrix.values[i]![j]!;
   return sum;
+}
+
+export interface RegionTravelProfile {
+  /** Durham-origin trips by destination group: same municipality / another
+   *  Durham municipality / Toronto / elsewhere in survey area / beyond it.
+   *  Shares use Durham-origin trips as denominator, matching the municipal
+   *  orbit scope. */
+  sameMunicipality: number;
+  elsewhereInDurham: number;
+  toronto: number;
+  elsewhereSurveyArea: number;
+  beyondSurveyArea: number;
+  /** Trips originating in Durham (all eight municipalities). */
+  durhamOriginTrips: number;
+  orbitShares: { same: number; durham: number; toronto: number; outside: number };
+  /** Complete aggregated destination distribution over Durham origins. */
+  destinations: DestinationFlow[];
+}
+
+/**
+ * Region-level destination composition for trips ORIGINATING in Durham —
+ * the same scope as the municipal orbit, so `place=durham` renders
+ * consistently beside municipality selections.
+ */
+export function getRegionTravelProfile(ds: OdDataset): RegionTravelProfile {
+  const byId = new Map<string, DestinationFlow>();
+  const add = (id: string, name: string, group: DestGroup, trips: number) => {
+    if (trips <= 0) return;
+    const existing = byId.get(id);
+    if (existing) existing.trips += trips;
+    else byId.set(id, { destinationId: id, destinationName: name, group, trips });
+  };
+  let same = 0;
+  let durhamOther = 0;
+  let toronto = 0;
+  let elsewhere = 0;
+  let beyond = 0;
+  for (let i = 0; i < ds.matrix.rowNames.length; i++) {
+    const oName = ds.matrix.rowNames[i]!;
+    const oMuni = muniIdOfName(oName);
+    if (oMuni === null) continue; // region orbit is origin-scoped
+    for (let j = 0; j < ds.matrix.colNames.length; j++) {
+      const v = ds.matrix.values[i]![j]!;
+      if (v <= 0) continue;
+      const dName = ds.matrix.colNames[j]!;
+      const dMuni = muniIdOfName(dName);
+      if (dMuni !== null) {
+        if (oMuni === dMuni) {
+          same += v;
+          add(dMuni, MUNI_NAMES[dMuni]!, "same", v);
+        } else {
+          durhamOther += v;
+          add(dMuni, MUNI_NAMES[dMuni]!, "durham", v);
+        }
+      } else if (isTorontoName(dName)) {
+        toronto += v;
+        add("toronto", "Toronto", "toronto", v);
+      } else if (dName === "External") {
+        beyond += v;
+        add("external", "Beyond the surveyed area", "outside", v);
+      } else {
+        elsewhere += v;
+        add(`pd-${dName}`, dName, "outside", v);
+      }
+    }
+  }
+  const durhamOriginTrips = same + durhamOther + toronto + elsewhere + beyond;
+  const destinations = [...byId.values()].sort((a, b) => b.trips - a.trips);
+  return {
+    sameMunicipality: same,
+    elsewhereInDurham: durhamOther,
+    toronto,
+    elsewhereSurveyArea: elsewhere,
+    beyondSurveyArea: beyond,
+    durhamOriginTrips,
+    orbitShares: {
+      same: same / durhamOriginTrips,
+      durham: durhamOther / durhamOriginTrips,
+      toronto: toronto / durhamOriginTrips,
+      outside: (elsewhere + beyond) / durhamOriginTrips,
+    },
+    destinations,
+  };
+}
+
+export interface LocalComposition {
+  /** Both endpoints in the same Durham municipality. */
+  sameMunicipality: number;
+  /** Both endpoints in Durham, different municipalities. */
+  betweenDurhamMunicipalities: number;
+  /** At least one endpoint outside Durham (including trips entirely outside
+   *  Durham and beyond the survey area). */
+  outsideInvolving: number;
+  /** All trips by Durham-household members. */
+  totalTrips: number;
+}
+
+/**
+ * Three mutually exclusive groups over ALL trips by Durham-household members
+ * — the "what kind of local?" composition. Distinct from the origin-scoped
+ * orbit: a Toronto→Durham trip counts here (one endpoint outside Durham),
+ * not as cross-municipal travel.
+ */
+export function getLocalComposition(ds: OdDataset): LocalComposition {
+  let same = 0;
+  let cross = 0;
+  let outside = 0;
+  for (let i = 0; i < ds.matrix.rowNames.length; i++) {
+    const oMuni = muniIdOfName(ds.matrix.rowNames[i]!);
+    for (let j = 0; j < ds.matrix.colNames.length; j++) {
+      const v = ds.matrix.values[i]![j]!;
+      if (v <= 0) continue;
+      const dMuni = muniIdOfName(ds.matrix.colNames[j]!);
+      if (oMuni !== null && dMuni !== null) {
+        if (oMuni === dMuni) same += v;
+        else cross += v;
+      } else {
+        outside += v;
+      }
+    }
+  }
+  return {
+    sameMunicipality: same,
+    betweenDurhamMunicipalities: cross,
+    outsideInvolving: outside,
+    totalTrips: ds.matrix.total,
+  };
 }
 
 export function getMunicipalityDestinationProfile(ds: OdDataset, muniId: string) {
@@ -530,6 +686,9 @@ export function getMunicipalityDestinationProfile(ds: OdDataset, muniId: string)
 /**
  * Mode composition for one origin→destination context. origin/destination are
  * resolved as: municipality id | "toronto" | "durham" | "outside" | "external".
+ * "outside" means elsewhere in the surveyed area EXCLUDING external code 998;
+ * use "external" for trips beyond the survey area. Consumers must not label
+ * an "outside" result as including travel beyond the survey area.
  */
 export function getModeComposition(
   ds: OdDataset,
@@ -555,42 +714,78 @@ export interface ModeContext {
   description: string;
   trips: number;
   groups: Record<ModeGroup, number>;
+  /** False for the combined "all internal Durham" comparison context, which
+   *  overlaps same-municipality + another-Durham and must never be shown as
+   *  an additional slice in the same composition. */
+  disjoint: boolean;
 }
 
-/** The four destination contexts for the mode-morph chapter. */
+/**
+ * Destination contexts for Durham-origin trips. The five disjoint contexts
+ * partition all Durham-origin trips; "allInternalDurham" is a combined
+ * comparison context (overlaps the first two).
+ */
 export function getModeContexts(ds: OdDataset): ModeContext[] {
-  const build = (key: string, label: string, description: string, filter: (o: number, d: number) => boolean): ModeContext => {
+  const build = (
+    key: string,
+    label: string,
+    description: string,
+    disjoint: boolean,
+    filter: (o: number, d: number) => boolean,
+  ): ModeContext => {
     const { trips, total } = modeGroupsFor(ds, filter);
-    return { key, label, description, trips: total, groups: trips };
+    return { key, label, description, trips: total, groups: trips, disjoint };
   };
   const inDurham = (c: number) => Object.values(MUNI_PD_CODE).includes(c);
   return [
     build(
       "sameMunicipality",
       "Within the same municipality",
-      "Trips that begin and end in the same Durham municipality",
+      "that begin and end in the same Durham municipality",
+      true,
       (o, d) => inDurham(o) && o === d,
     ),
     build(
-      "internalDurham",
-      "Around Durham",
-      "Trips that begin and end somewhere in Durham Region",
-      (o, d) => inDurham(o) && inDurham(d),
+      "otherDurham",
+      "Another Durham municipality",
+      "that begin in one Durham municipality and end in a different one",
+      true,
+      (o, d) => inDurham(o) && inDurham(d) && o !== d,
     ),
     build(
       "toToronto",
-      "To Toronto",
-      "Trips that begin in Durham and end in Toronto",
+      "Toronto",
+      "that begin in Durham and end in Toronto",
+      true,
       (o, d) => inDurham(o) && TORONTO_CODES.has(d),
     ),
     build(
-      "toOutside",
-      "Beyond the region",
-      "Trips that begin in Durham and end outside Durham and Toronto",
-      (o, d) => inDurham(o) && !inDurham(d) && !TORONTO_CODES.has(d),
+      "elsewhereSurveyArea",
+      "Elsewhere in the survey area",
+      "that begin in Durham and end outside Durham and Toronto, inside the surveyed area",
+      true,
+      (o, d) => inDurham(o) && !inDurham(d) && !TORONTO_CODES.has(d) && d !== EXTERNAL_CODE,
+    ),
+    build(
+      "beyondSurveyArea",
+      "Beyond the surveyed area",
+      "that begin in Durham and end outside the surveyed area (TTS code 998)",
+      true,
+      (o, d) => inDurham(o) && d === EXTERNAL_CODE,
+    ),
+    build(
+      "allInternalDurham",
+      "Anywhere in Durham",
+      "beginning and ending inside Durham Region (same municipality or another one)",
+      false,
+      (o, d) => inDurham(o) && inDurham(d),
     ),
   ];
 }
+
+/** Disjoint contexts only (partitions Durham-origin trips). */
+export const getDisjointModeContexts = (ds: OdDataset): ModeContext[] =>
+  getModeContexts(ds).filter((c) => c.disjoint);
 
 export interface Comparable2022 {
   total: number;

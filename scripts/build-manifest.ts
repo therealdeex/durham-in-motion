@@ -31,6 +31,8 @@ const sources = SOURCES.map((s) => {
     landingPage: s.landingPage,
     licence: s.licence,
     licenceUrl: s.licenceUrl,
+    acquisition: s.acquisition ?? "public",
+    availability: observed ? "present" : s.acquisition === "manual" ? "manual-import-required" : "missing",
     downloadedAt: prior?.downloadedAt ?? null,
     sha256: observed,
     supplementaryOnly: s.supplementaryOnly ?? false,
@@ -38,10 +40,19 @@ const sources = SOURCES.map((s) => {
   };
 });
 
-const missing = sources.filter((s) => !s.sha256);
-if (missing.length > 0) {
-  console.error(`manifest: ${missing.length} source file(s) missing: ${missing.map((m) => m.id).join(", ")}`);
+// Public sources must exist after data:fetch — a missing one is a pipeline
+// failure. Manual (authenticated) imports are inventoried, not fetched;
+// downstream OD steps fail with their own actionable message when absent.
+const missingPublic = sources.filter((s) => !s.sha256 && s.acquisition === "public");
+if (missingPublic.length > 0) {
+  console.error(`manifest: ${missingPublic.length} public source file(s) missing: ${missingPublic.map((m) => m.id).join(", ")}`);
   process.exit(1);
+}
+const missingManual = sources.filter((s) => !s.sha256 && s.acquisition === "manual");
+if (missingManual.length > 0) {
+  console.warn(
+    `manifest: ${missingManual.length} manual import(s) absent (${missingManual.map((m) => m.id).join(", ")}) — recorded as manual-import-required; OD steps will not run until imported (docs/idrs-data.md).`,
+  );
 }
 
 mkdirSync(resolve(ROOT, "public/data"), { recursive: true });

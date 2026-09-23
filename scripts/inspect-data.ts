@@ -122,16 +122,34 @@ const partitions: Partition[] = [
         "other", "unknown_mode"].includes(r.metric),
     tol: 0.005,
   },
+  {
+    // Previously advertised but never defined (audit A09). Published purposes
+    // can sum a hair above the total (2022: +2 trips) — reported as-is, never forced.
+    name: "residents 24h trips by purpose",
+    total: (r) => r.domain === "trip" && r.direction === "residents" && r.period === "all_day" && r.metric === "total",
+    member: (r) => r.domain === "trip" && r.direction === "residents" && r.period === "all_day" && r.metric === "purpose",
+    tol: 0.005,
+  },
+  {
+    name: "person age bands",
+    total: (r) => r.domain === "person" && r.metric === "total",
+    member: (r) => r.domain === "person" && r.metric === "age",
+    tol: 0.005, // unknown-age cells reconcile the total where published
+  },
 ];
 
 let partitionsChecked = 0;
+let partitionsSkipped = 0;
 let suppressionShortfalls = 0;
 let shareWarnings = 0;
 for (const g of groups.values()) {
   for (const p of partitions) {
     if (!g.recs.some(p.member)) continue;
     const totalRec = get(g.recs, p.total);
-    if (!totalRec || totalRec.value === null || totalRec.status !== "observed") continue;
+    if (!totalRec || totalRec.value === null || totalRec.status !== "observed") {
+      partitionsSkipped++;
+      continue;
+    }
     const exactSum = sumOf(g.recs, p.member);
     const frac = Math.abs(exactSum - totalRec.value) / totalRec.value;
     partitionsChecked++;
@@ -144,6 +162,13 @@ for (const g of groups.values()) {
         suppressionShortfalls++;
         continue;
       }
+    }
+    // Sums slightly ABOVE the total are a known DMG publishing quirk
+    // (purposes 2022: +2 trips ≈ 0.0002%); tolerate but count.
+    if (frac <= 0.001) {
+      shareWarnings++;
+      warn("shares", `${p.name} ${g.year} ${g.geo}: categories sum ${exactSum} vs published total ${totalRec.value} (published quirk, kept as-is)`);
+      continue;
     }
     shareWarnings++;
     warn("shares", `${p.name} ${g.year} ${g.geo}: sum ${exactSum} vs total ${totalRec.value} (${(frac * 100).toFixed(1)}% off)`);
@@ -194,37 +219,58 @@ for (const f of byFile) {
   if (!region) error("geography", `no region column in ${f.spec.path}`);
 }
 
-// Ward household totals should sum to the municipality total (households are
-// never suppressed in these files).
+// Ward household totals should sum to the MUNICIPAL FILE's total for the same
+// year (the ward file itself carries no municipality columns — audit A09: the
+// old branch looked for them there and silently skipped). Households are never
+// suppressed in these files.
+let wardReconciliations = 0;
+let wardReconciliationSkipped = 0;
 for (const f of byFile.filter((x) => x.spec.geographyType === "ward")) {
+  const munFile = byFile.find((x) => x.spec.year === f.spec.year && x.spec.geographyType === "municipality");
+  if (!munFile) {
+    wardReconciliationSkipped += f.geography.filter((g) => g.type === "ward").length;
+    continue;
+  }
   const byGeo = new Map<string, Rec[]>();
   for (const r of f.records) {
     const list = byGeo.get(r.geographyId) ?? [];
     list.push(r);
     byGeo.set(r.geographyId, list);
   }
+  const munByGeo = new Map<string, Rec[]>();
+  for (const r of munFile.records) {
+    const list = munByGeo.get(r.geographyId) ?? [];
+    list.push(r);
+    munByGeo.set(r.geographyId, list);
+  }
   for (const mun of new Set(f.geography.filter((g) => g.type === "ward").map((g) => g.municipality!))) {
-    const munTotal = get(byGeo.get(mun) ?? [], (r) => r.domain === "household" && r.metric === "total")?.value;
+    const munTotal = get(munByGeo.get(mun) ?? [], (r) => r.domain === "household" && r.metric === "total")?.value;
     const wardRows = f.geography.filter((g) => g.type === "ward" && g.municipality === mun);
     const wardSum = wardRows.reduce((acc, w) => {
       const v = get(byGeo.get(w.id) ?? [], (r) => r.domain === "household" && r.metric === "total")?.value;
       return v != null ? acc + v : acc;
     }, 0);
-    if (munTotal != null && wardSum > 0) {
-      const frac = Math.abs(wardSum - munTotal) / munTotal;
-      partitionsChecked++;
-      if (frac > 0.005) {
-        warn("geography", `ward sum for ${mun} households (${f.spec.year}): ${wardSum} vs municipal ${munTotal} (${(frac * 100).toFixed(1)}% off)`);
-      }
+    if (munTotal == null || wardSum <= 0) {
+      wardReconciliationSkipped++;
+      continue;
+    }
+    wardReconciliations++;
+    const frac = Math.abs(wardSum - munTotal) / munTotal;
+    if (frac > 0.005) {
+      warn("geography", `ward sum for ${mun} households (${f.spec.year}): ${wardSum} vs municipal-file ${munTotal} (${(frac * 100).toFixed(1)}% off)`);
     }
   }
 }
 
 // ---------- 5. comparability ----------
-const bad2022 = allRecords.filter(
-  (r) => r.surveyYear === 2022 && (r.domain === "trip" || r.domain === "transit_detail") && r.comparability !== "not_comparable",
+// 2022 (ages 5+) and 1986 (ages 6+, per the 2022 Data Guide §1.5) break the
+// 1991–2016 (11+) trip basis; both must be flagged not_comparable.
+const badTrips = allRecords.filter(
+  (r) =>
+    (r.domain === "trip" || r.domain === "transit_detail") &&
+    ((r.surveyYear === 2022 || r.surveyYear === 1986) ? r.comparability !== "not_comparable" : r.comparability === "not_comparable"),
 );
-if (bad2022.length > 0) error("comparability", `${bad2022.length} 2022 trip records not flagged not_comparable`);
+if (badTrips.length > 0) error("comparability", `${badTrips.length} trip records with the wrong basis flag (1986/2022 must be not_comparable; 1991–2016 caution)`);
 
 // ---------- report ----------
 const years = [...new Set(allRecords.map((r) => r.surveyYear))].sort((a, b) => a - b);
@@ -275,7 +321,7 @@ lines.push("| Domain | Metrics | Notes |");
 lines.push("|---|---|---|");
 lines.push("| household | total; dwelling (house/apartment/townhouse); size 1–5+; vehicles 0–5+; licensed drivers 0–5+; full/part-time & work-at-home employees 0–5+; students 0–5+; structure (6 categories); income bands (year-specific) | Income bands changed in 2016 (six bands) vs 2022 (nine bands) — not merged across cycles. Townhouse counts are N/A in 1986. |");
 lines.push("| person | total; sex; age 5-year bands; licence; transit pass (categories vary by cycle); employment; occupation (three taxonomies: 2006/2011, 2016, 2022); work location; school location; student status; commute days (2022); commute day-of-week (2022) | Age/sex/total available in every cycle. |");
-lines.push("| trip | total; 14 modes; 4 purposes (residents) / 7–10 purposes (to/from area); linked trips (older cycles) — each for residents / to-area / from-area × 24h / AM peak / PM peak | 1986–2016 collected for persons 11+; 2022 for persons 5+ with fuller walking capture. 2022 rows are flagged `not_comparable`; 1986–2016 rows `caution`. |");
+lines.push("| trip | total; 14 modes; 4 purposes (residents) / 7–10 purposes (to/from area); linked trips (older cycles) — each for residents / to-area / from-area × 24h / AM peak / PM peak | Trip-collection ages: 1986 = 6+, 1991–2016 = 11+, 2022 = 5+ with fuller walking capture (2022 Data Guide §1.5). 1986 and 2022 rows are flagged `not_comparable` with their own basis ids; 1991–2016 rows `caution`. |");
 lines.push("| transit_detail | routes 1–6; service (GO rail/bus, TTC, local, non-local); access/egress mode | Not comparable across cycles without care; not used in v1 narrative. |");
 lines.push("");
 lines.push("## Suppression & availability (Region column)");
@@ -291,18 +337,19 @@ lines.push("Suppression is far more common at ward level and in rural municipali
 lines.push("");
 lines.push("## Validation results");
 lines.push("");
-lines.push(`- Sources present: ${SOURCES.length - missingSources.length}/${SOURCES.length}`);
+lines.push(`- Sources present: ${SOURCES.length - missingSources.length}/${SOURCES.length} (public: ${SOURCES.filter((s) => s.acquisition !== "manual").length}; manual iDRS imports: ${SOURCES.filter((s) => s.acquisition === "manual").length})`);
 lines.push(`- Label crosswalk coverage: 100% (${allRecords.length.toLocaleString("en-CA")} records after deduplication; every data label resolved)`);
-lines.push(`- Partition checks run: ${partitionsChecked.toLocaleString("en-CA")}`);
+lines.push(`- Partition checks run: ${partitionsChecked.toLocaleString("en-CA")} (skipped where the published total row is unavailable: ${partitionsSkipped.toLocaleString("en-CA")})`);
+lines.push(`- Ward↔municipality household reconciliations: ${wardReconciliations} run, ${wardReconciliationSkipped} skipped`);
 lines.push(`- Shortfalls explained by suppressed member cells (expected; never imputed): ${suppressionShortfalls.toLocaleString("en-CA")}`);
-lines.push(`- Issues: ${issues.filter((i) => i.severity === "error").length} errors, ${shareWarnings} unexplained share warnings`);
+lines.push(`- Issues: ${issues.filter((i) => i.severity === "error").length} errors, ${shareWarnings} share warnings`);
 for (const i of issues) lines.push(`  - **${i.severity}** [${i.check}] ${i.detail}`);
 lines.push("");
 lines.push("## Comparability decisions");
 lines.push("");
-lines.push("- **strong**: household & person counts 1986–2022 (definitions stable; category-level exceptions listed above).");
-lines.push("- **caution**: all trip/transit records 1986–2016 (shared 11+ basis, but wording, expansion and period windows evolved — e.g. 2016 PM peak = 15:00–17:59 vs 2022 = 15:00–18:59).");
-lines.push("- **not_comparable**: all trip/transit records 2022 (persons 5+, fuller walking capture, revised expansion). Historical charts never draw 2022 trip counts on the same axis as earlier cycles without a break annotation.");
+lines.push("- **strong**: household & person counts 1986–2022 (definitions broadly stable; cycle-specific collection changes and category gaps listed above).");
+lines.push("- **caution**: trip/transit records 1991–2016 (shared 11+ basis, but wording, expansion and period windows evolved — e.g. 2016 PM peak = 15:00–17:59 vs 2022 = 15:00–18:59).");
+lines.push("- **not_comparable**: trip/transit records from 1986 and 2022. 1986 collected trips for persons aged 6+ (2022 Data Guide §1.5) — a different basis from 1991–2016's 11+. 2022 collected ages 5+ with fuller walking capture and revised expansion. Historical charts draw 1986 and 2022 points as isolated markers, never connected to the 1991–2016 line.");
 lines.push("");
 lines.push("## Answers to the ten development questions (brief §27)");
 lines.push("");
@@ -313,8 +360,8 @@ lines.push("4. **Meaningful geographic variation** — transit share, walking sh
 lines.push("5. **Suppressed records** — counts per year in the table above; concentrated in ward-level files and small rural categories.");
 lines.push("6. **PD boundary join** — yes, cleanly: shapefile `PD_name` equals the CSV municipality column names for Durham.");
 lines.push("7. **Ward boundary join** — no survey-compatible public ward boundary file is published on the boundary page (only PD and traffic-zone layers). Ward analysis is presented without polygons (bars/ranks), or aggregated to municipalities on maps.");
-lines.push("8. **Definition breaks** — 2022 trip collection (5+ vs 11+; walking capture) is the material break; 2016 PM-peak window differs; 2011/2016 transit-pass and occupation taxonomies differ.");
-lines.push("9. **Public OD report usable?** — deferred: the 2022 OD matrices are published as PDF tables; reliable programmatic extraction would require OCR/table-scraping that fails the determinism bar. Documented in `docs/od-data-investigation.md`; OD is Phase 2.");
+lines.push("8. **Definition breaks** — trip collection ages changed twice (1986 = 6+, 2022 = 5+ with fuller walking capture, vs 11+ in 1991–2016); 2016 PM-peak window differs from 2022; 2011/2016 transit-pass and occupation taxonomies differ; the guide documents 2011 household-attribute restrictions.");
+lines.push("9. **Public OD report usable?** — superseded: OD stories now run on four authorized iDRS extracts (see `docs/idrs-data.md`, `docs/data-permissions.md`); the public PDF matrices remain unsuitable for programmatic use (`docs/od-data-investigation.md`).");
 lines.push("10. **Headline findings** — generated programmatically into `public/data/story-candidates.json` by `npm run data:findings`.");
 lines.push("");
 

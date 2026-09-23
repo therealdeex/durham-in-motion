@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-21T01:04:16.915Z",
+  "generatedAt": "2026-09-23T16:02:42.629Z",
   "findings": [
     {
       "id": "population-growth",
@@ -19,17 +19,17 @@
       "to": "2022: 14.1%",
       "change": "+9.2 pp",
       "comparability": "strong",
-      "notes": "Full-time + part-time usually-work-at-home as a share of employed persons. 1986 omitted (suppressed part-time-at-home cell). 2022 reflects post-2020 hybrid work."
+      "notes": "Full-time + part-time usually-work-at-home as a share of employed persons. 1986 is not computable from the published cells (the part-time-at-home cell is suppressed, affecting numerator and denominator), so the series starts in 1991. 2022 reflects post-2020 hybrid work."
     },
     {
       "id": "vehicles-per-household",
-      "headline": "The average Durham household owned 1.71 vehicles in 1986; today it owns 1.81.",
+      "headline": "The average Durham household owned 1.71 vehicles in 1986; in the 2022 survey it owned 1.81.",
       "metric": "avg_vehicles_per_household",
       "from": "1986: 1.71",
       "to": "2022: 1.81",
       "change": "+0.11",
       "comparability": "strong",
-      "notes": "Top-coded '5 or more' counted as 5, so means are slightly low; applied uniformly."
+      "notes": "Top-coded '5 or more' counted as 5, so means are slightly low; the bias need not be identical across communities."
     },
     {
       "id": "transit_share",
@@ -93,13 +93,13 @@
     },
     {
       "id": "toronto_commute_share",
-      "headline": "Workers commuting to Toronto: highest Pickering (43.5%), lowest Scugog (11.7%).",
+      "headline": "Workers commuting to Toronto: highest Pickering (37.0%), lowest Scugog (9.4%).",
       "metric": "toronto_commute_share",
-      "value": "highest Pickering 43.5%",
-      "durham": "27.5%",
-      "difference": "43.5% vs 11.7%",
+      "value": "highest Pickering 37.0%",
+      "durham": "24.3%",
+      "difference": "37.0% vs 9.4%",
       "comparability": "within-2022",
-      "notes": "Usual place of work in Toronto, share of workers with a usual place inside the survey area (2022)."
+      "notes": "Employed residents whose usual workplace is in Toronto, as a share of all employed residents (2022). The stricter usual-workplace denominator is never complete (suppressed area cells), so employed residents is the denominator."
     },
     {
       "id": "vehicles_per_hh",
@@ -147,16 +147,16 @@
     },
     {
       "id": "transit-growth-pre2022",
-      "headline": "Transit's share of resident weekday trips rose from 4.5% in 1986 to 6.4% in 2016 (comparable pre-2022 cycles only).",
-      "metric": "transit_share_1986_2016",
-      "from": "1986: 4.5%",
+      "headline": "Transit's share of resident weekday trips moved from 4.6% in 1991 to 6.4% in 2016 (comparable 11+ cycles only).",
+      "metric": "transit_share_1991_2016",
+      "from": "1991: 4.6%",
       "to": "2016: 6.4%",
       "comparability": "caution",
-      "notes": "Excludes 2022 (methodology break)."
+      "notes": "1991–2016 only: 1986 collected trips at ages 6+ and 2022 at ages 5+ with fuller walking capture — both are excluded as different bases."
     },
     {
       "id": "ward-transit-extremes",
-      "headline": "Ward-level transit share ranges from 5.1% in Oshawa Ward 2 to 0.5% in Clarington Ward 4.",
+      "headline": "Ward-level transit share ranges from 5.1% in Oshawa Ward 2 to 0.2% in Scugog Ward 4.",
       "metric": "transit_share_wards_2022",
       "value": "highest Oshawa Ward 2 5.1%",
       "durham": "3.5%",

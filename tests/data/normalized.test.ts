@@ -24,6 +24,7 @@ const records = data.records as {
   value: number | null;
   status: string;
   comparability: string;
+  basisId: string;
   sourceId: string;
   unit: string;
   sourceLabel: string;
@@ -56,13 +57,17 @@ test("suppressed cells never carry a numeric value", () => {
   assert.ok(suppressed.length > 1000, "expected a realistic number of suppressed cells");
 });
 
-test("2022 trip records are not_comparable; earlier ones caution", () => {
+test("trip comparability is per collection basis (1986 6+, 1991–2016 11+, 2022 5+)", () => {
   for (const r of records) {
     if (r.domain !== "trip" && r.domain !== "transit_detail") continue;
-    if (r.surveyYear === 2022) {
-      assert.equal(r.comparability, "not_comparable", `2022 trip record flagged comparable: ${r.metric}`);
+    if (r.surveyYear === 2022 || r.surveyYear === 1986) {
+      // 1986 collected trips at ages 6+ (2022 TTS Data Guide §1.5); 2022 at 5+.
+      // Both break the 1991–2016 (11+) basis.
+      assert.equal(r.comparability, "not_comparable", `${r.surveyYear} trip record flagged comparable: ${r.metric}`);
+      assert.equal(r.basisId, r.surveyYear === 2022 ? "trips-age-5plus-fuller-walk" : "trips-age-6plus");
     } else {
       assert.equal(r.comparability, "caution");
+      assert.equal(r.basisId, "trips-age-11plus");
     }
   }
 });

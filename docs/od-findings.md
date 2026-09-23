@@ -11,8 +11,8 @@ re-run it rather than editing numbers by hand.
 |---|---|
 | Total trips (Durham households) | 1,440,137 |
 | Internal (origin and destination in Durham) | 1,144,111 (79.44%) |
-| Durham → Toronto | 77,303 (5.37%) |
-| Toronto → Durham | 76,336 (5.30%) |
+| Durham → Toronto | 77,303 (5.37% of all trips) |
+| Toronto → Durham | 76,336 (5.30% of all trips) |
 | 2016-comparable 2022 trips (excl2016 = 0) | 1,298,366 |
 | 2022-comparable transit | 50,343 (3.88%) |
 | 2016 transit (public CSV) | 81,802 of 1,279,235 (6.39%) — independently verified |
@@ -23,24 +23,24 @@ unidimensional matrix (mode-not-stated trips absent from it). These are document
 
 ## A. Municipality OD matrix (expanded weekday trips)
 
-Origins are Durham municipalities; destination groups: the eight municipalities, Toronto, elsewhere in the surveyed area, and beyond it (TTS code 998).
+Rows are Durham-municipality origins. Columns: the eight municipalities, Toronto (aggregated over its 16 planning districts), elsewhere in the surveyed area, and beyond it (TTS code 998).
 
-| From \ To | Brock | Uxbridge | Scugog | Pickering | Ajax | Whitby | Oshawa | Clarington | Toronto | Outside | Beyond |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| Brock | 10,468 | 797 | 1,515 | 9 | 412 | 342 | 323 | 210 | 142 | 3,676 | 18,247 |
-| Uxbridge | 842 | 25,804 | 1,868 | 864 | 195 | 854 | 658 | 264 | 369 | 5,946 | 38,641 |
-| Scugog | 1,120 | 1,886 | 24,005 | 645 | 797 | 2,226 | 4,399 | 1,246 | 416 | 2,410 | 39,887 |
-| Pickering | 104 | 865 | 606 | 100,425 | 20,701 | 7,570 | 6,336 | 2,978 | 3,973 | 9,893 | 170,160 |
-| Ajax | 227 | 244 | 818 | 21,215 | 135,646 | 16,234 | 11,985 | 2,489 | 3,832 | 7,488 | 215,045 |
-| Whitby | 777 | 890 | 2,289 | 7,403 | 16,201 | 173,906 | 42,338 | 9,235 | 4,733 | 9,950 | 278,267 |
-| Oshawa | 362 | 816 | 4,160 | 6,307 | 12,413 | 41,732 | 226,098 | 24,711 | 3,742 | 10,048 | 339,429 |
-| Clarington | 210 | 230 | 1,236 | 2,983 | 2,466 | 9,547 | 24,382 | 123,227 | 1,945 | 7,492 | 178,641 |
+| From \ To | Brock | Uxbridge | Scugog | Pickering | Ajax | Whitby | Oshawa | Clarington | Toronto | Elsewhere surveyed | Beyond | Origin total |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Brock | 10,468 | 797 | 1,515 | 9 | 412 | 342 | 323 | 210 | 495 | 3,668 | 8 | 18,247 |
+| Uxbridge | 842 | 25,804 | 1,868 | 864 | 195 | 854 | 658 | 264 | 1,346 | 5,860 | 86 | 38,641 |
+| Scugog | 1,120 | 1,886 | 24,005 | 645 | 797 | 2,226 | 4,399 | 1,246 | 1,153 | 2,384 | 26 | 39,887 |
+| Pickering | 104 | 865 | 606 | 100,425 | 20,701 | 7,570 | 6,336 | 2,978 | 20,682 | 9,764 | 129 | 170,160 |
+| Ajax | 227 | 244 | 818 | 21,215 | 135,646 | 16,234 | 11,985 | 2,489 | 18,699 | 7,284 | 204 | 215,045 |
+| Whitby | 777 | 890 | 2,289 | 7,403 | 16,201 | 173,906 | 42,338 | 9,235 | 15,278 | 9,214 | 736 | 278,267 |
+| Oshawa | 362 | 816 | 4,160 | 6,307 | 12,413 | 41,732 | 226,098 | 24,711 | 12,782 | 9,777 | 271 | 339,429 |
+| Clarington | 210 | 230 | 1,236 | 2,983 | 2,466 | 9,547 | 24,382 | 123,227 | 6,868 | 7,131 | 361 | 178,641 |
 
-(Column "Beyond" = TTS "External" destinations outside the surveyed area; it is part of "Outside" totals above.)
+Toronto cells are the aggregate over all 16 Toronto planning districts (audit A02: one PD alone is not "Toronto"). Each row reconciles: municipalities + Toronto + elsewhere + beyond = origin total.
 
 ## B–D. Retention and orientation by municipality
 
-| Municipality | Trips originating | Stay in same municipality | Somewhere in Durham | To Toronto | Elsewhere outside |
+| Municipality | Trips originating | Stay in same municipality | Somewhere in Durham | To Toronto | Elsewhere outside Durham |
 |---|---|---|---|---|---|
 | Brock | 18,247 | 57.4% | 77.1% | 2.7% | 20.1% |
 | Uxbridge | 38,641 | 66.8% | 81.1% | 3.5% | 15.4% |
@@ -69,16 +69,20 @@ Origins are Durham municipalities; destination groups: the eight municipalities,
 | Peterborough | 1,857 |
 | Beyond the surveyed area | 1,821 |
 
-## F. Mode by destination context
+## F. Mode by destination context (disjoint)
 
 | Context | Drive | Ride | Transit | Walk | Cycle | School bus | Other | Trips |
 |---|---|---|---|---|---|---|---|---|
 | Same municipality (origin = destination) | 56.0% | 20.7% | 1.6% | 14.4% | 1.0% | 5.8% | 0.5% | 819,576 |
-| Elsewhere in Durham | 76.1% | 17.7% | 3.5% | 0.3% | 0.4% | 1.2% | 0.8% | 324,532 |
+| Another Durham municipality | 76.1% | 17.7% | 3.5% | 0.3% | 0.4% | 1.2% | 0.8% | 324,532 |
 | To Toronto | 72.0% | 11.5% | 15.3% | 0.1% | 0.1% | 0.4% | 0.7% | 77,302 |
-| Elsewhere outside Durham (incl. beyond surveyed area) | 82.8% | 15.2% | 0.8% | 0.1% | 0.1% | 0.9% | 0.3% | 55,083 |
+| Elsewhere in survey area (excl. beyond) | 82.8% | 15.2% | 0.8% | 0.1% | 0.1% | 0.9% | 0.3% | 55,083 |
+| Beyond the surveyed area (code 998) | 59.6% | 35.7% | 4.3% | 0.0% | 0.0% | 0.3% | 0.0% | 1,821 |
+| — combined: anywhere in Durham (overlaps rows 1–2) | 61.7% | 19.9% | 2.2% | 10.4% | 0.8% | 4.5% | 0.6% | 1,144,108 |
 
-(Each row sums to 100% across mode groups; "Other" includes taxi, rideshare, motorcycle, e-scooter and unclassified.)
+The five disjoint contexts sum to 1,278,314 versus 1,278,317 Durham-origin trips in the unidimensional matrix (9-trip mode-not-stated residue). "Elsewhere in survey area" and "beyond the surveyed area" are reported separately — never pooled silently (audit A03).
+
+Drive/walk contrast: within the same municipality drive 56.0% / walk 14.4%; between Durham municipalities drive 76.1% / walk 0.3%.
 
 ## G. Directional asymmetry by municipal pair
 
@@ -97,7 +101,7 @@ Origins are Durham municipalities; destination groups: the eight municipalities,
 | Ajax ↔ Clarington | 2,489 | 2,466 | 4,955 | 23 | 0.5% |
 | Scugog ↔ Whitby | 2,226 | 2,289 | 4,515 | 63 | 1.4% |
 
-(Top 12 two-way pairs by volume; the direction column distinguishes home-based outbound from return travel.)
+(Top 12 two-way pairs by volume. Direction distinguishes outbound from return travel; it does not label home-based versus non-home-based journeys.)
 
 ## H. Network centrality (weighted degree)
 
@@ -134,6 +138,18 @@ Top 15 PD→PD relationships inside Durham (these are the seeds of future zoom-i
 - Ajax → Whitby: 16,234
 - Whitby → Ajax: 16,201
 
+## J. What kind of local? (mutually exclusive composition of all Durham-household trips)
+
+| Group | Trips | Share of 1,440,137 |
+|---|---|---|
+| Both endpoints in the same municipality | 819,579 | 56.9% |
+| Between Durham municipalities | 324,532 | 22.5% |
+| At least one endpoint outside Durham | 296,026 | 20.6% |
+
+The last group includes trips entirely outside Durham made by Durham-household members. Same-municipality + between-municipalities = the 79.44% internal share.
+
+Concentration: the top three municipal pairs (Whitby–Oshawa, Oshawa–Clarington, Pickering–Ajax) carry 175,079 two-way trips — 53.9% of all intermunicipal Durham travel.
+
 ## Candidate findings (ranked internally — do not publish the ranking)
 
 ### 1. Durham is a region of local movement
@@ -160,7 +176,7 @@ Top 15 PD→PD relationships inside Durham (these are the seeds of future zoom-i
 
 **Why it matters:** Shows Durham as one connected network, not eight isolated towns; supports regional (not local-by-local) service planning.
 
-**Exact calculation:** `Two-way municipal pairs: Whitby↔Oshawa 84,070, Oshawa↔Clarington 49,093, Pickering↔Ajax 41,916 …`
+**Exact calculation:** `Two-way municipal pairs: Whitby↔Oshawa 84,070, Oshawa↔Clarington 49,093, Pickering↔Ajax 41,916 … top three = 53.9% of intermunicipal travel`
 
 **Source:** 2022 TTS via DMG iDRS (Durham-household filter, expanded weekday trips).
 
@@ -174,21 +190,22 @@ Top 15 PD→PD relationships inside Durham (these are the seeds of future zoom-i
 
 ### 3. Where we're going changes how we get there
 
-**Finding:** Trips to Toronto look nothing like trips across town — transit carries seven times the share.
+**Finding:** Trips to Toronto look nothing like trips across town — transit carries several times the share.
 
 **Why it matters:** The clearest mode-story: walking nearly vanishes and transit triples when the destination is Toronto instead of down the street.
 
-**Exact calculation:** `Internal vs Durham→Toronto mode shares (by-mode OD extract): drive 61.7% → 72.0%, ride 19.9% → 11.5%, walk 10.4% → 0.1%, transit 2.2% → 15.3%`
+**Exact calculation:** `Same-municipality vs Durham→Toronto mode shares (by-mode OD extract): drive 61.7% → 72.0%, ride 19.9% → 11.5%, walk 10.4% → 0.1%, transit 2.2% → 15.3%`
 
 **Source:** 2022 TTS via DMG iDRS (Durham-household filter, expanded weekday trips).
 
 **Potential visualization:** One morphing stacked bar between the two contexts (the visual centrepiece).
 
-**Potential headline:** “Trips to Toronto look nothing like trips across town — transit carries seven times the share.”
+**Potential headline:** “Trips to Toronto look nothing like trips across town — transit carries several times the share.”
 
 **Caveats:**
 - Mode-not-stated trips (9 overall) absent from the by-mode extract.
 - Shares of trips, not persons.
+- Association with the destination context, not a causal effect of crossing a boundary.
 
 ### 4. Every municipality has its own travel orbit
 
@@ -206,25 +223,26 @@ Top 15 PD→PD relationships inside Durham (these are the seeds of future zoom-i
 
 **Caveats:**
 - Origin-based only (where trips starting here go).
-- Small external flows suppressed from display below threshold.
+- Small external flows hidden from display below the stated threshold.
 
-### 5. Toronto matters — but it isn't the whole story
+### 5. Toronto is the single largest outside destination — bigger than everywhere else combined
 
-**Finding:** About 77,000 weekday trips connect Durham and Toronto in each direction — one part of a much bigger network.
+**Finding:** More Durham trips head to Toronto than to every other destination outside the region combined.
 
-**Why it matters:** Keeps the commuting story honest: Toronto-bound travel is real and large in absolute terms, just small relative to everything else.
+**Why it matters:** Corrects the earlier reversed claim: Durham-origin trips to Toronto (77,303, 6.05% of Durham-origin trips) exceed those to ALL other destinations outside Durham combined (56,903, 4.45%).
 
-**Exact calculation:** `Durham→Toronto 77,303 (5.4% of all Durham-household trips); Toronto→Durham 76,336.`
+**Exact calculation:** `Toronto 77,303 vs elsewhere-outside-Durham 56,903 (elsewhere surveyed 55,082 + beyond 1,821), denominators = 1,278,317 Durham-origin trips`
 
 **Source:** 2022 TTS via DMG iDRS (Durham-household filter, expanded weekday trips).
 
-**Potential visualization:** Balance view inside the reveal chapter: Toronto highlighted inside the full flow picture.
+**Potential visualization:** Two-bar comparison inside the orbit chapter; the “outside” slice splits into Toronto vs everywhere else.
 
-**Potential headline:** “About 77,000 weekday trips connect Durham and Toronto in each direction — one part of a much bigger network.”
+**Potential headline:** “More Durham trips head to Toronto than to every other destination outside the region combined.”
 
 **Caveats:**
-- Durham→Toronto counts trips by Durham-household members whose origin is in Durham; not “all residents commuting”.
-- Trip-based, all purposes; commute-only figures come from the usual-workplace questions instead.
+- Shares use Durham-origin trips as denominator — not the all-trips total (the earlier version mixed the two and reversed the conclusion).
+- Aggregates many small flows; “elsewhere” ranges from York Region to Peterborough and beyond the survey area.
+- Trip-based, all purposes; not a commuting measure.
 
 ### 6. Transit had not yet returned to its 2016 share
 
@@ -242,24 +260,6 @@ Top 15 PD→PD relationships inside Durham (these are the seeds of future zoom-i
 
 **Caveats:**
 - 2022 reflects a post-pandemic travel environment; the TTS alone cannot say why.
-- excl2016 flag is itself imperfect (some 2022 trips carry neither 0 nor 1); DMG's guidance is to filter excl2016 = 0 for comparisons.
+- The data guide defines excl2016 values 0/1/2 (0 = comparable basis; 2 covers excluded non-commute walking); DMG's guidance is excl2016 = 0 for comparisons. Never present excl0 + excl1 as the full 2022 total.
 - Never place full-basis 2022 mode shares on the historical line (walking capture changed).
-
-### 7. Elsewhere outside Durham is bigger than Toronto
-
-**Finding:** More Durham trips head to the 905 belt and beyond than to Toronto itself.
-
-**Why it matters:** Trips from Durham to places other than Toronto (and not internal) total 15.2% — York Region, Peel, and beyond — a quiet correction to the Toronto-centric mental map.
-
-**Exact calculation:** `originTrips − internal − toToronto, summed over municipalities = 56,903`
-
-**Source:** 2022 TTS via DMG iDRS (Durham-household filter, expanded weekday trips).
-
-**Potential visualization:** Minor beat in the orbit chapter; “outside” slice splits into Toronto vs everywhere else.
-
-**Potential headline:** “More Durham trips head to the 905 belt and beyond than to Toronto itself.”
-
-**Caveats:**
-- Aggregates many small flows; destinations range from Newmarket to Peterborough.
-- Includes trips beyond the surveyed area (code 998).
 

@@ -7,6 +7,7 @@ import { resolve } from "node:path";
 import { parseValue, type ValueStatus } from "./values.ts";
 import { isNoteRow, resolveLabel, type MetricMeta } from "./labels.ts";
 import { sourceIdFor } from "./sources.ts";
+import { comparabilityFor, TRIP_BASIS_BY_YEAR, type Comparability } from "./compatibility.ts";
 
 const ROOT = resolve(import.meta.dirname, "..", "..");
 
@@ -18,7 +19,10 @@ export interface NormalizedRecord extends MetricMeta {
   value: number | null;
   status: ValueStatus;
   unit: "households" | "persons" | "trips";
-  comparability: "strong" | "caution" | "not_comparable";
+  comparability: Comparability;
+  /** Collection basis (scripts/lib/compatibility.ts): trips carry their
+   *  per-cycle age basis; everything else is "demographics". */
+  basisId: string;
   sourceId: string;
   sourceLabel: string;
 }
@@ -109,23 +113,11 @@ export function parseCsvLine(line: string): string[] {
 }
 
 /**
- * Longitudinal comparability of a metric.
- *
- * Demographics (household/person counts): strong — definitions are stable
- * across 1986–2022, with documented exceptions (income bands changed in 2016;
- * townhouse dwelling not collected in 1986) handled as category-level cautions.
- *
- * Trips: 1986–2016 share a common collection basis (household members 11+)
- * → "caution". 2022 is "not_comparable" with all earlier cycles (persons 5+;
- * walking captured more completely), per the 2022 file header and Data Guide.
+ * Longitudinal comparability of a metric — see scripts/lib/compatibility.ts
+ * for the basis rules (1986 trips collected at ages 6+, 1991–2016 at 11+,
+ * 2022 at 5+ with fuller walking capture; income bands changed).
  */
-export function comparabilityFor(meta: MetricMeta, year: number): NormalizedRecord["comparability"] {
-  if (meta.domain === "trip" || meta.domain === "transit_detail") {
-    return year >= 2022 ? "not_comparable" : "caution";
-  }
-  if (meta.metric === "income") return "caution";
-  return "strong";
-}
+export { comparabilityFor } from "./compatibility.ts";
 
 export interface ReadResult {
   records: NormalizedRecord[];
@@ -230,6 +222,10 @@ export function readFile(spec: FileSpec): ReadResult {
     const unit: NormalizedRecord["unit"] =
       meta.domain === "household" ? "households" : meta.domain === "person" ? "persons" : "trips";
     const comparability = comparabilityFor(meta, spec.year);
+    const basisId =
+      meta.domain === "trip" || meta.domain === "transit_detail"
+        ? TRIP_BASIS_BY_YEAR[spec.year] ?? "unknown"
+        : "demographics";
 
     for (const { index, geo } of geoCols) {
       const parsed = parseValue(row[index]);
@@ -243,6 +239,7 @@ export function readFile(spec: FileSpec): ReadResult {
         status: parsed.status,
         unit,
         comparability,
+        basisId,
         sourceId,
         sourceLabel: label,
       });

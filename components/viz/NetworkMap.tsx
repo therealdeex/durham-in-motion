@@ -12,12 +12,15 @@ const STEP_LABELS = [
   "And the next",
   "The full network",
 ];
+const FINAL_STEP = STEP_LABELS.length;
 
 /**
- * Chapter — “Durham's hidden network”. Municipality desire lines appear in
- * rank order; the sequence auto-plays once in view, then the map is
- * interactive (hover/focus a connection for exact flows, click a community
- * to isolate its connections).
+ * Chapter — “Durham's hidden network”. Municipality desire lines in rank
+ * order. The complete network is the default state — final information is
+ * always visible; the staged reveal is an optional enhancement that only
+ * runs when motion is allowed and cancels on any interaction (audit A07:
+ * reduced-motion users previously started with invisible connections, and
+ * community filtering did nothing once the full network showed).
  */
 export function NetworkMap({
   geom,
@@ -31,30 +34,32 @@ export function NetworkMap({
   const shown = useMemo(() => pairs.filter((p) => p.totalTwoWay >= threshold), [pairs, threshold]);
   const maxTrips = shown[0]?.totalTwoWay ?? 1;
 
-  const reduced = useReducedMotion();
-  const [step, setStep] = useState(reduced ? STEP_LABELS.length : 0);
+  const [step, setStep] = useState(FINAL_STEP);
   const replayedRef = useRef(false);
   const timerRef = useRef<number | null>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ pair: OdPairFlow; x: number; y: number } | null>(null);
   const [focusMuni, setFocusMuni] = useState<string | null>(null);
 
-  // Autoplay the staged reveal once the chapter is in view; any manual step
-  // selection cancels it.
+  // Optional staged reveal: only when motion is allowed, once, and cancelled
+  // by any manual interaction. The step starts at FINAL_STEP so the very
+  // first paint (and every reduced-motion user) shows the full network.
   useEffect(() => {
-    if (reduced || replayedRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = hostRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
         observer.disconnect();
+        if (replayedRef.current) return;
         replayedRef.current = true;
+        setStep(0);
         let s = 0;
         timerRef.current = window.setInterval(() => {
           s += 1;
           setStep(s);
-          if (s >= STEP_LABELS.length && timerRef.current !== null) {
+          if (s >= FINAL_STEP && timerRef.current !== null) {
             clearInterval(timerRef.current);
             timerRef.current = null;
           }
@@ -67,15 +72,24 @@ export function NetworkMap({
       observer.disconnect();
       if (timerRef.current !== null) clearInterval(timerRef.current);
     };
-  }, [reduced]);
+  }, []);
 
-  const selectStep = (s: number) => {
+  const cancelReveal = () => {
     if (timerRef.current !== null) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
     replayedRef.current = true;
+  };
+
+  const selectStep = (s: number) => {
+    cancelReveal();
     setStep(s);
+  };
+
+  const toggleFocus = (id: string) => {
+    cancelReveal();
+    setFocusMuni((cur) => (cur === id ? null : id));
   };
 
   const strokeWidth = (trips: number) => 1.4 + 9 * Math.sqrt(trips / maxTrips);
@@ -86,8 +100,10 @@ export function NetworkMap({
     return { a, b };
   };
 
+  // With a community focused, only its connections stay lit — including in
+  // the final state. Without a focus, everything is lit.
   const isLit = (p: OdPairFlow) =>
-    step >= 5 || (focusMuni !== null ? p.a === focusMuni || p.b === focusMuni : false);
+    focusMuni === null || p.a === focusMuni || p.b === focusMuni;
 
   const onArcMove = (e: React.MouseEvent, pair: OdPairFlow) => {
     const host = hostRef.current;
@@ -103,10 +119,10 @@ export function NetworkMap({
           viewBox={`0 0 ${geom.W} ${geom.H}`}
           className="w-full"
           role="img"
-          aria-label={`Map of Durham Region's eight municipalities with travel connections between them. Step: ${STEP_LABELS[Math.min(step, STEP_LABELS.length) - 1] ?? "starting"}. ${shown
+          aria-label={`Map of Durham Region's eight municipalities with travel connections between them. ${shown
             .slice(0, 6)
             .map((p) => labelOf(p))
-            .join("; ")}.`}
+            .join("; ")}. Full details in the table below.`}
         >
           <path d={geom.outlinePath} fill="#141f26" stroke="#3d5a58" strokeWidth="1.6" />
           {geom.municipalities.map((m) => (
@@ -114,53 +130,67 @@ export function NetworkMap({
               key={m.id}
               d={m.path}
               fill={focusMuni === m.id ? "rgba(127,214,204,0.14)" : "transparent"}
-              stroke="#2a3d44"
-              strokeWidth="1"
+              stroke={focusMuni === m.id ? "#7fd6cc" : "#2a3d44"}
+              strokeWidth={focusMuni === m.id ? 1.5 : 1}
               className="cursor-pointer transition-[fill] duration-200"
-              onClick={() => setFocusMuni(focusMuni === m.id ? null : m.id)}
+              onClick={() => toggleFocus(m.id)}
             />
           ))}
 
           {/* arcs appear in rank order as steps advance */}
           {shown.map((p, i) => {
-            const visible = step >= Math.min(i + 2, STEP_LABELS.length);
+            const visible = step >= Math.min(i + 2, FINAL_STEP);
             const { a, b } = pairGeom(p);
             const lit = isLit(p);
-            const dimmed = focusMuni !== null && !lit;
             return (
               <g
                 key={`${p.a}-${p.b}`}
-                className={`transition-opacity duration-700 ${visible ? "opacity-100" : "opacity-0"}`}
+                className={`transition-opacity duration-700 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-0"}`}
               >
                 <path
                   d={arcPath(a.cx, a.cy, b.cx, b.cy, 0.16)}
                   fill="none"
                   stroke="#7fd6cc"
                   strokeLinecap="round"
-                  strokeOpacity={dimmed ? 0.12 : 0.85}
+                  strokeOpacity={lit ? 0.85 : 0.1}
                   strokeWidth={strokeWidth(p.totalTwoWay) * (hover?.pair === p ? 1.35 : 1)}
                   className="transition-[stroke-width,stroke-opacity] duration-200"
                   style={{ pointerEvents: "none" }}
                 />
-                {/* generous invisible hit area */}
+                {/* generous invisible hit area, keyboard-focusable */}
                 <path
                   d={arcPath(a.cx, a.cy, b.cx, b.cy, 0.16)}
                   fill="none"
                   stroke="transparent"
                   strokeWidth="16"
-                  className="cursor-pointer"
+                  className="cursor-pointer outline-none"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${nameOf(p.a)} to ${nameOf(p.b)}: ${fmtInt(p.totalTwoWay)} two-way weekday trips. Press to highlight.`}
                   onMouseMove={(e) => onArcMove(e, p)}
                   onMouseLeave={() => setHover(null)}
+                  onFocus={(e) => {
+                    const host = hostRef.current;
+                    if (!host) return;
+                    const rect = host.getBoundingClientRect();
+                    const svgRect = (e.target as SVGPathElement).getBoundingClientRect();
+                    setHover({
+                      pair: p,
+                      x: svgRect.left + svgRect.width / 2 - rect.left,
+                      y: svgRect.top - rect.top,
+                    });
+                  }}
+                  onBlur={() => setHover(null)}
                 />
               </g>
             );
           })}
 
-          {/* labels */}
+          {/* labels — keyboard-operable community filter */}
           {geom.municipalities.map((m, i) => (
             <g
               key={m.id}
-              className={`transition-opacity duration-500 ${step >= 1 || reduced ? "opacity-100" : "opacity-0"}`}
+              className={`transition-opacity duration-500 motion-reduce:transition-none ${step >= 1 ? "opacity-100" : "opacity-0"}`}
               style={{ transitionDelay: `${i * 40}ms` }}
             >
               <circle
@@ -169,22 +199,22 @@ export function NetworkMap({
                 r="3"
                 fill={focusMuni === m.id ? "#f5b043" : "#7fd6cc"}
                 className="cursor-pointer"
-                onClick={() => setFocusMuni(focusMuni === m.id ? null : m.id)}
+                onClick={() => toggleFocus(m.id)}
               />
               <text
                 x={m.cx + 8}
                 y={m.cy + 4}
                 fontSize="12.5"
-                fill="#c6d2d0"
+                fill={focusMuni === m.id ? "#f5b043" : "#c6d2d0"}
                 fontFamily="var(--font-inter)"
                 className="cursor-pointer select-none"
-                onClick={() => setFocusMuni(focusMuni === m.id ? null : m.id)}
+                onClick={() => toggleFocus(m.id)}
               >
                 {m.name}
               </text>
             </g>
           ))}
-          <g className={`transition-opacity duration-500 ${step >= 2 || reduced ? "opacity-100" : "opacity-0"}`}>
+          <g className={`transition-opacity duration-500 motion-reduce:transition-none ${step >= 2 ? "opacity-100" : "opacity-0"}`}>
             <circle cx={geom.toronto.x} cy={geom.toronto.y} r="4" fill="#c2502e" />
             <text
               x={geom.toronto.x + 9}
@@ -223,7 +253,7 @@ export function NetworkMap({
       <div>
         <div className="flex min-h-[3.4rem] items-center gap-3" aria-live="polite">
           <span className="font-display text-2xl text-walk">
-            {Math.min(Math.max(step, 1), STEP_LABELS.length)}/ {STEP_LABELS.length}
+            {Math.min(Math.max(step, 1), FINAL_STEP)}/{FINAL_STEP}
           </span>
           <p className="text-chalk-dim">
             {shown.length === 0
@@ -232,7 +262,9 @@ export function NetworkMap({
                 ? "Eight communities, one region."
                 : step <= 4
                   ? pairLine(shown[step - 2], step - 1)
-                  : `Every corridor of ${fmtInt(threshold)}+ daily trips. Durham is tied together.`}
+                  : focusMuni !== null
+                    ? `Every corridor of ${fmtInt(threshold)}+ daily trips — filtered to ${nameOf(focusMuni)}.`
+                    : `Every corridor of ${fmtInt(threshold)}+ daily trips. Durham is tied together.`}
           </p>
         </div>
 
@@ -293,7 +325,7 @@ export function NetworkMap({
         <p className="mt-4 text-xs leading-relaxed text-chalk-dim">
           Connections show where trips begin and end — not the roads or transit routes used.
           Showing corridors with at least {fmtInt(threshold)} expanded weekday trips (2022 TTS).
-          Tap a community to isolate its connections.
+          Select a community on the map — or focus a connection with the keyboard — to isolate it.
         </p>
       </div>
     </div>
@@ -316,11 +348,3 @@ const pairLine = (p: OdPairFlow | undefined, rank: number) =>
   p
     ? `#${rank + 1}: ${nameOf(p.a)} ↔ ${nameOf(p.b)} — ${fmtInt(p.totalTwoWay)} trips a day.`
     : "More connections appear as they are revealed.";
-
-function useReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-  return reduced;
-}

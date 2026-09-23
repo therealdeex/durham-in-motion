@@ -1,72 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { fmtInt, fmtPct } from "@/lib/format";
+import { fmtInt, fmtPct, shareStatusNote } from "@/lib/format";
+import { MODES, apportion } from "@/lib/metrics";
 import type { Profile } from "@/lib/types";
 
-interface ModeDef {
-  key: keyof Profile["modeShares"];
-  rawKeys: string[];
-  label: string;
-  color: string;
-  blurb: string;
-}
-
-const MODES: ModeDef[] = [
-  {
-    key: "autoDriver",
-    rawKeys: ["autoDriver"],
-    label: "Car driver",
-    color: "var(--color-auto-driver)",
-    blurb: "Trips where the person is driving a private car, truck or van.",
-  },
-  {
-    key: "autoPassenger",
-    rawKeys: ["autoPassenger"],
-    label: "Car passenger",
-    color: "var(--color-auto-passenger)",
-    blurb: "Riding as a passenger in a private vehicle — carpooling, getting dropped off, sharing a ride.",
-  },
-  {
-    key: "transit",
-    rawKeys: ["transit"],
-    label: "Transit",
-    color: "var(--color-transit)",
-    blurb: "Local transit (Durham Region Transit), GO buses and trains, and trips that combine both.",
-  },
-  {
-    key: "walk",
-    rawKeys: ["walk"],
-    label: "Walking",
-    color: "var(--color-walk)",
-    blurb: "Trips made entirely on foot. The 2022 survey captured walking trips more completely than earlier cycles.",
-  },
-  {
-    key: "bicycle",
-    rawKeys: ["bicycle"],
-    label: "Cycling",
-    color: "var(--color-bicycle)",
-    blurb: "Trips by bicycle, including e-bikes.",
-  },
-  {
-    key: "schoolBus",
-    rawKeys: ["schoolBus"],
-    label: "School bus",
-    color: "var(--color-school-bus)",
-    blurb: "Yellow-bus trips, mostly to and from school.",
-  },
-  {
-    key: "otherMisc",
-    rawKeys: ["otherMisc"],
-    label: "Other",
-    color: "var(--color-other-misc)",
-    blurb: "Motorcycles, taxis, ride-hailing, e-scooters and everything else.",
-  },
-];
-
 /**
- * Chapter 2 — How We Move. A 10×10 grid where each cell is 1% of the
- * region's weekday trips; cells assemble mode by mode.
+ * Chapter — How We Move. A 10×10 grid where each cell is 1% of the region's
+ * weekday trips. Cells are assigned by largest-remainder apportionment —
+ * exactly 100 squares, no padding, no truncation (audit A08: independent
+ * rounding previously produced 102 squares and then cut "Other" entirely).
+ * Labels and colours come from the shared metric registry.
  */
 export function ModeShare({ region }: { region: Profile }) {
   const [active, setActive] = useState<string | null>(null);
@@ -76,8 +20,7 @@ export function ModeShare({ region }: { region: Profile }) {
   useEffect(() => {
     const el = gridRef.current;
     if (!el) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setAssembled(true);
       return;
     }
@@ -91,37 +34,39 @@ export function ModeShare({ region }: { region: Profile }) {
     return () => observer.disconnect();
   }, []);
 
-  // 100 cells, assigned to modes in order of share.
+  const shares = MODES.map((m) => region.modeShares[m.id].value ?? 0);
+  const counts = apportion(shares, 100); // exact partition of 100 cells
   const cells: string[] = [];
-  for (const m of MODES) {
-    const share = region.modeShares[m.key].value ?? 0;
-    cells.push(...Array(Math.round(share * 100)).fill(m.key));
-  }
-  while (cells.length < 100) cells.push(MODES[0].key);
-  cells.length = 100;
+  MODES.forEach((m, i) => {
+    for (let k = 0; k < counts[i]!; k++) cells.push(m.id);
+  });
 
-  // interleave so the grid looks mixed when assembled
+  // Deterministic shuffle (no Math.random — SSR/client hydration match).
   const grid = [...cells];
-  for (let i = grid.length - 1 > 0 ? grid.length - 1 : 0; i > 0; i--) {
-    // deterministic shuffle (no Math.random — SSR/client hydration mismatch)
+  for (let i = grid.length - 1; i > 0; i--) {
     const j = (i * 7 + 3) % (i + 1);
-    [grid[i], grid[j]] = [grid[j], grid[i]];
+    [grid[i], grid[j]] = [grid[j]!, grid[i]!];
   }
+
+  const anyPartial = MODES.some((m) => {
+    const s = region.modeShares[m.id];
+    return s.status !== "observed" && s.value !== null;
+  });
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center">
       <div>
         <div className="flex flex-wrap gap-2">
           {MODES.map((m) => {
-            const s = region.modeShares[m.key];
-            const isActive = active === m.key;
+            const s = region.modeShares[m.id];
+            const isActive = active === m.id;
             return (
               <button
-                key={m.key}
+                key={m.id}
                 type="button"
-                onClick={() => setActive(isActive ? null : m.key)}
-                onMouseEnter={() => setActive(m.key)}
-                onFocus={() => setActive(m.key)}
+                onClick={() => setActive(isActive ? null : m.id)}
+                onMouseEnter={() => setActive(m.id)}
+                onFocus={() => setActive(m.id)}
                 aria-pressed={isActive}
                 className="group flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors"
                 style={{
@@ -141,8 +86,8 @@ export function ModeShare({ region }: { region: Profile }) {
         <div className="mt-6 min-h-[5.5rem]" aria-live="polite">
           {active ? (
             (() => {
-              const m = MODES.find((x) => x.key === active)!;
-              const s = region.modeShares[m.key];
+              const m = MODES.find((x) => x.id === active)!;
+              const s = region.modeShares[m.id];
               return (
                 <div>
                   <p className="font-display text-3xl text-chalk">
@@ -152,6 +97,9 @@ export function ModeShare({ region }: { region: Profile }) {
                     </span>
                   </p>
                   <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-chalk-dim">{m.blurb}</p>
+                  {shareStatusNote(s) && (
+                    <p className="mt-1 text-xs text-walk">{shareStatusNote(s)}</p>
+                  )}
                 </div>
               );
             })()
@@ -170,16 +118,16 @@ export function ModeShare({ region }: { region: Profile }) {
           ref={gridRef}
           className="mx-auto grid w-full max-w-[420px] grid-cols-10 gap-1 rounded-xl border border-night-line bg-night-soft p-4"
           role="img"
-          aria-label={`Grid of 100 squares, each representing one percent of weekday trips. ${MODES.map((m) => `${m.label} ${fmtPct(region.modeShares[m.key].value)}`).join(", ")}.`}
+          aria-label={`Grid of 100 squares, each representing one percent of weekday trips. ${MODES.map((m) => `${m.label} ${fmtPct(region.modeShares[m.id].value)}`).join(", ")}.`}
         >
           {grid.map((key, i) => {
-            const m = MODES.find((x) => x.key === key)!;
+            const m = MODES.find((x) => x.id === key)!;
             const dim = active !== null && active !== key;
             return (
               <span
                 key={i}
                 aria-hidden
-                className="aspect-square rounded-[3px] transition-all duration-300"
+                className="aspect-square rounded-[3px] transition-all duration-300 motion-reduce:transition-none"
                 style={{
                   backgroundColor: m.color,
                   opacity: assembled ? (dim ? 0.22 : 1) : 0,
@@ -191,7 +139,11 @@ export function ModeShare({ region }: { region: Profile }) {
           })}
         </div>
         <p className="mt-3 text-center text-xs text-chalk-dim">
-          Each square is 1% of the {region.tripsTotal !== null ? `${(region.tripsTotal / 1_000_000).toFixed(2)} million` : ""} weekday trips made by Durham residents (2022).
+          Each square is 1% of the{" "}
+          {region.tripsTotal !== null ? `${(region.tripsTotal / 1_000_000).toFixed(2)} million` : ""} weekday trips
+          made by Durham residents (2022). Squares are apportioned by largest remainder, so the
+          grid always totals exactly 100.
+          {anyPartial ? " ≈ marks shares computed as lower bounds (a suppressed category excluded)." : ""}
         </p>
       </div>
     </div>

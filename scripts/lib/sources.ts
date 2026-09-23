@@ -18,7 +18,8 @@ export interface SourceDef {
   rawPath: string;
   /** Note for humans reading the manifest or the Sources page. */
   note?: string;
-  /** Secondary copy of an equivalent file used as a provenance cross-check. */
+  /** Excluded from per-record source attribution: cross-check copies and
+   *  non-tabular (query-produced) extracts such as iDRS origin–destination runs. */
   supplementaryOnly?: boolean;
 }
 
@@ -118,6 +119,69 @@ export const SOURCES: SourceDef[] = [
     licence: DMG_LICENCE,
     licenceUrl: DMG_LICENCE_URL,
     rawPath: "data/raw/geography/tts_pd_shapefile.zip",
+  },
+
+  // ---- Authenticated iDRS extracts (drs.dmg.utoronto.ca) -------------------
+  // Produced by interactive queries against the 2022 TTS trip table with the
+  // filter "Regional municipality of household in Durham". Full query strings,
+  // method notes and caveats: docs/idrs-data.md. Raw extracts are archived
+  // locally only; confirm redistribution terms with DMG before publishing them
+  // (or files derived from them) verbatim.
+  {
+    id: "tts-2022-idrs-od-pd",
+    organization: DMG_ORG,
+    title: "2022 TTS origin–destination matrix, planning districts × planning districts (Durham-resident trips)",
+    surveyYear: 2022,
+    geography: "region",
+    url: "https://drs.dmg.utoronto.ca/",
+    landingPage: "https://drs.dmg.utoronto.ca/",
+    licence: `${DMG_LICENCE} (authenticated iDRS access)`,
+    licenceUrl: DMG_LICENCE_URL,
+    rawPath: "data/raw/idrs/tts2022_od_pd_durham-residents.csv",
+    note: "Cross-tabulation: row = pd_orig, column = pd_dest, filter region_hhld in Durham, expansion factors on. Total reconciles with the public 2022 trip table to within 12 trips.",
+    supplementaryOnly: true,
+  },
+  {
+    id: "tts-2022-idrs-od-pd-mode",
+    organization: DMG_ORG,
+    title: "2022 TTS origin–destination matrix by primary mode (Durham-resident trips)",
+    surveyYear: 2022,
+    geography: "region",
+    url: "https://drs.dmg.utoronto.ca/",
+    landingPage: "https://drs.dmg.utoronto.ca/",
+    licence: `${DMG_LICENCE} (authenticated iDRS access)`,
+    licenceUrl: DMG_LICENCE_URL,
+    rawPath: "data/raw/idrs/tts2022_od_pd_durham-residents_by-mode.csv",
+    note: "Same query with table attribute mode_prime (13 mode blocks, column format). Block totals fall 9 trips short of the unidimensional matrix (mode-not-stated trips).",
+    supplementaryOnly: true,
+  },
+  {
+    id: "tts-2022-idrs-mode-pd-full",
+    organization: DMG_ORG,
+    title: "2022 TTS mode × planning district of household (Durham residents, full 2022 basis)",
+    surveyYear: 2022,
+    geography: "municipality",
+    url: "https://drs.dmg.utoronto.ca/",
+    landingPage: "https://drs.dmg.utoronto.ca/",
+    licence: `${DMG_LICENCE} (authenticated iDRS access)`,
+    licenceUrl: DMG_LICENCE_URL,
+    rawPath: "data/raw/idrs/tts2022_mode_by-pd_durham-residents_full.csv",
+    note: "Validation extract: every mode total reconciles with the public 2022 municipal summary to within 4 trips.",
+    supplementaryOnly: true,
+  },
+  {
+    id: "tts-2022-idrs-mode-pd-excl2016",
+    organization: DMG_ORG,
+    title: "2022 TTS mode × planning district of household (Durham residents, 2016-comparable basis, excl2016 = 0)",
+    surveyYear: 2022,
+    geography: "municipality",
+    url: "https://drs.dmg.utoronto.ca/",
+    landingPage: "https://drs.dmg.utoronto.ca/",
+    licence: `${DMG_LICENCE} (authenticated iDRS access)`,
+    licenceUrl: DMG_LICENCE_URL,
+    rawPath: "data/raw/idrs/tts2022_mode_by-pd_durham-residents_excl2016-0.csv",
+    note: "Filters region_hhld in Durham AND excl2016 = 0. First 2016-comparable 2022 mode split for the Long View; see docs/idrs-data.md for the excl2016 0/1/unclassified caveat.",
+    supplementaryOnly: true,
   },
 ];
 

@@ -1,6 +1,9 @@
 # OD Data Investigation (2022 TTS Origin-Destination Matrices)
 
-Status: **deferred to Phase 2** — no usable machine-readable OD data in the public release.
+Status: **unblocked for Phase 2** — machine-readable OD data obtained via authenticated iDRS
+(2026-09-23). See `docs/idrs-data.md` for the extracts, validation and caveats; the raw files
+live under `data/raw/idrs/`. The PDF path below remains rejected; the iDRS path removed the
+original blocker.
 
 ## What was investigated
 
@@ -18,6 +21,9 @@ extracted deterministically into an aggregate OD dataset (`ODFlow`-shaped) for d
    source file and checksum, with no manual repair.
 3. The iDRS (authenticated Data Retrieval System) provides machine-readable OD data, but requires a
    registered academic/municipal account. The MVP deliberately uses only unauthenticated public data.
+   **Resolved 2026-09-23**: with Shahram's iDRS account we pulled a Durham-resident PD×PD matrix
+   (100×103) and a by-mode variant; both reconcile with the public trip totals (see
+   `docs/idrs-data.md`). Phase 2 can build the desire-line layer on these.
 
 ## Decision
 

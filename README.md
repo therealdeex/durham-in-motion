@@ -74,7 +74,8 @@ Sources and checksums: `/sources` and `/data/manifest.json`.
 ## Deployment
 
 Static export (`out/`) — hostable on any static CDN. No database, no backend, no authenticated
-data access. The architecture leaves seams for a future OD/flow layer (`docs/od-data-investigation.md`).
+data access. The architecture leaves seams for a future OD/flow layer (`docs/od-data-investigation.md`);
+authenticated iDRS extracts for that phase are already archived and documented (`docs/idrs-data.md`).
 
 On dev-lab2 the export is served persistently on **port 3310** (always this port):
 

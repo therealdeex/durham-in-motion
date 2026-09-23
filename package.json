@@ -18,6 +18,8 @@
     "data:od-findings": "tsx scripts/analyze-od.ts",
     "data:story": "tsx scripts/build-story-data.ts",
     "data:findings": "tsx scripts/find-findings.ts",
+    "data:phase3": "tsx scripts/build-phase3-data.ts",
+    "data:phase3-findings": "tsx scripts/analyze-phase3.ts",
     "data:check": "tsx scripts/check-artifacts.ts",
     "data:all": "npm run data:fetch && npm run data:manifest && npm run data:normalize && npm run data:geography && npm run data:od && npm run data:od-findings && npm run data:story && npm run data:insights && npm run data:findings && npm run data:check && npm run data:inspect",
     "verify": "npm run lint && npm run typecheck && npm test && npm run data:check && npm run build",

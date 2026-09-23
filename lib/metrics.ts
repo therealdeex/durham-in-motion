@@ -229,3 +229,16 @@ export function apportion(shares: number[], cells: number): number[] {
 
 /** Share of a share, status-aware: null/withheld propagates. */
 export const shareValue = (s: Share): number | null => s.value;
+
+/** Licensed drivers per ten residents (children included), one decimal.
+ *  2022 Durham: 499,064 drivers / 691,893 residents → 7.2. */
+export const driversPerTenResidents = (drivers: number, persons: number): number =>
+  Math.round((drivers / persons) * 100) / 10;
+
+export const licenceRateNote = (r: {
+  drivers: number | null;
+  persons: number | null;
+}): string => {
+  if (r.drivers === null || r.persons === null) return "";
+  return `That is ${driversPerTenResidents(r.drivers, r.persons).toFixed(1)} licensed drivers for every ten residents — children included.`;
+};

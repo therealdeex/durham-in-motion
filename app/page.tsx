@@ -21,6 +21,7 @@ import { SourceNote, SuppressionNote } from "@/components/ui/Notes";
 import { getHistoricalTrends, getInsights, getMunicipalities, getOdFlows, getRegionSummary, getWards } from "@/lib/data";
 import { loadMapGeom } from "@/lib/od-map-server";
 import { fmtPct, fmtInt } from "@/lib/format";
+import { licenceRateNote } from "@/lib/metrics";
 import type { InsightBase } from "@/lib/types";
 
 export const dynamic = "force-static";
@@ -363,11 +364,6 @@ export default function StoryPage() {
       <SiteFooter />
     </>
   );
-}
-
-function licenceRateNote(r: { drivers: number | null; persons: number | null }): string {
-  if (r.drivers === null || r.persons === null) return "";
-  return `That is ${Math.round((r.drivers / r.persons) * 10) / 10} licensed drivers for every ten residents — children included.`;
 }
 
 function SiteFooter() {

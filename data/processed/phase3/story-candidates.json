@@ -1,0 +1,2301 @@
+{
+  "generatedAt": "2026-09-23T18:39:54.297Z",
+  "dataBasis": {
+    "universe": 19470494,
+    "universeSurveyRecords": 759736,
+    "durhamHouseholdTrips": 1440145,
+    "dayRecords": 54535
+  },
+  "dayCurve": {
+    "byHour": [
+      {
+        "h": 4,
+        "label": "04:00",
+        "trips": 5674,
+        "records": 214,
+        "byMode": {
+          "cycle": 4,
+          "drive": 5095,
+          "transit": 232,
+          "ride": 339,
+          "other": 4
+        },
+        "byPurpose": {
+          "Home-Based Work": 4693,
+          "Home-based Discretionary": 717,
+          "Non Home-based": 264
+        }
+      },
+      {
+        "h": 5,
+        "label": "05:00",
+        "trips": 18586,
+        "records": 639,
+        "byMode": {
+          "drive": 15701,
+          "transit": 1221,
+          "ride": 845,
+          "walk": 343,
+          "other": 417,
+          "cycle": 21,
+          "schoolBus": 38
+        },
+        "byPurpose": {
+          "Home-Based Work": 15759,
+          "Home-based School": 215,
+          "Home-based Discretionary": 2267,
+          "Non Home-based": 345
+        }
+      },
+      {
+        "h": 6,
+        "label": "06:00",
+        "trips": 40415,
+        "records": 1445,
+        "byMode": {
+          "transit": 3963,
+          "drive": 32456,
+          "ride": 2364,
+          "other": 151,
+          "walk": 881,
+          "cycle": 170,
+          "schoolBus": 430
+        },
+        "byPurpose": {
+          "Home-Based Work": 32529,
+          "Home-based School": 1761,
+          "Home-based Discretionary": 4950,
+          "Non Home-based": 1175
+        }
+      },
+      {
+        "h": 7,
+        "label": "07:00",
+        "trips": 105102,
+        "records": 3556,
+        "byMode": {
+          "transit": 6616,
+          "cycle": 549,
+          "drive": 64564,
+          "ride": 15722,
+          "other": 309,
+          "walk": 7287,
+          "schoolBus": 10055
+        },
+        "byPurpose": {
+          "Home-Based Work": 46930,
+          "Home-based School": 28051,
+          "Home-based Discretionary": 23800,
+          "Non Home-based": 6321
+        }
+      },
+      {
+        "h": 8,
+        "label": "08:00",
+        "trips": 156056,
+        "records": 4836,
+        "byMode": {
+          "transit": 5198,
+          "cycle": 1090,
+          "drive": 79934,
+          "ride": 29942,
+          "other": 716,
+          "walk": 25292,
+          "schoolBus": 13884
+        },
+        "byPurpose": {
+          "Home-Based Work": 32899,
+          "Home-based School": 56642,
+          "Home-based Discretionary": 52653,
+          "Non Home-based": 13862
+        }
+      },
+      {
+        "h": 9,
+        "label": "09:00",
+        "trips": 82247,
+        "records": 3220,
+        "byMode": {
+          "transit": 2265,
+          "drive": 52935,
+          "ride": 13515,
+          "walk": 10572,
+          "cycle": 519,
+          "other": 266,
+          "schoolBus": 2175
+        },
+        "byPurpose": {
+          "Home-Based Work": 14334,
+          "Home-based School": 17247,
+          "Home-based Discretionary": 40197,
+          "Non Home-based": 10469
+        }
+      },
+      {
+        "h": 10,
+        "label": "10:00",
+        "trips": 61428,
+        "records": 3078,
+        "byMode": {
+          "transit": 1840,
+          "cycle": 165,
+          "drive": 47063,
+          "other": 373,
+          "ride": 8931,
+          "walk": 3001,
+          "schoolBus": 55
+        },
+        "byPurpose": {
+          "Home-Based Work": 8008,
+          "Home-based School": 2013,
+          "Home-based Discretionary": 39478,
+          "Non Home-based": 11929
+        }
+      },
+      {
+        "h": 11,
+        "label": "11:00",
+        "trips": 64125,
+        "records": 3321,
+        "byMode": {
+          "transit": 1268,
+          "drive": 49376,
+          "ride": 8639,
+          "other": 409,
+          "walk": 4057,
+          "cycle": 376
+        },
+        "byPurpose": {
+          "Home-Based Work": 5339,
+          "Home-based School": 2289,
+          "Home-based Discretionary": 42126,
+          "Non Home-based": 14371
+        }
+      },
+      {
+        "h": 12,
+        "label": "12:00",
+        "trips": 66223,
+        "records": 3215,
+        "byMode": {
+          "transit": 1439,
+          "cycle": 541,
+          "drive": 49763,
+          "ride": 10011,
+          "walk": 3953,
+          "other": 364,
+          "schoolBus": 152
+        },
+        "byPurpose": {
+          "Home-Based Work": 7584,
+          "Home-based School": 2669,
+          "Home-based Discretionary": 39767,
+          "Non Home-based": 16203
+        }
+      },
+      {
+        "h": 13,
+        "label": "13:00",
+        "trips": 64724,
+        "records": 3169,
+        "byMode": {
+          "transit": 1637,
+          "cycle": 741,
+          "drive": 48303,
+          "ride": 9918,
+          "schoolBus": 7,
+          "walk": 3722,
+          "other": 396
+        },
+        "byPurpose": {
+          "Home-Based Work": 9224,
+          "Home-based School": 1697,
+          "Home-based Discretionary": 38078,
+          "Non Home-based": 15725
+        }
+      },
+      {
+        "h": 14,
+        "label": "14:00",
+        "trips": 104512,
+        "records": 4216,
+        "byMode": {
+          "cycle": 843,
+          "drive": 60247,
+          "transit": 2264,
+          "ride": 18807,
+          "other": 665,
+          "walk": 14111,
+          "schoolBus": 7575
+        },
+        "byPurpose": {
+          "Home-Based Work": 15402,
+          "Home-based School": 23991,
+          "Home-based Discretionary": 44856,
+          "Non Home-based": 20263
+        }
+      },
+      {
+        "h": 15,
+        "label": "15:00",
+        "trips": 161115,
+        "records": 5542,
+        "byMode": {
+          "transit": 4811,
+          "drive": 82646,
+          "ride": 31069,
+          "other": 997,
+          "walk": 26023,
+          "cycle": 1132,
+          "schoolBus": 14437
+        },
+        "byPurpose": {
+          "Home-Based Work": 28395,
+          "Home-based School": 51632,
+          "Home-based Discretionary": 58414,
+          "Non Home-based": 22674
+        }
+      },
+      {
+        "h": 16,
+        "label": "16:00",
+        "trips": 132132,
+        "records": 5017,
+        "byMode": {
+          "transit": 5835,
+          "cycle": 839,
+          "drive": 90040,
+          "other": 1089,
+          "ride": 22818,
+          "walk": 7940,
+          "schoolBus": 3571
+        },
+        "byPurpose": {
+          "Home-Based Work": 39825,
+          "Home-based School": 13929,
+          "Home-based Discretionary": 56547,
+          "Non Home-based": 21831
+        }
+      },
+      {
+        "h": 17,
+        "label": "17:00",
+        "trips": 119401,
+        "records": 4296,
+        "byMode": {
+          "transit": 5822,
+          "cycle": 778,
+          "drive": 83435,
+          "other": 480,
+          "ride": 24499,
+          "walk": 4287,
+          "schoolBus": 100
+        },
+        "byPurpose": {
+          "Home-Based Work": 37361,
+          "Home-based School": 5525,
+          "Home-based Discretionary": 59367,
+          "Non Home-based": 17148
+        }
+      },
+      {
+        "h": 18,
+        "label": "18:00",
+        "trips": 83648,
+        "records": 2923,
+        "byMode": {
+          "transit": 2420,
+          "cycle": 500,
+          "drive": 54471,
+          "ride": 22319,
+          "walk": 3284,
+          "other": 534,
+          "schoolBus": 120
+        },
+        "byPurpose": {
+          "Home-Based Work": 14862,
+          "Home-based School": 1959,
+          "Home-based Discretionary": 55070,
+          "Non Home-based": 11757
+        }
+      },
+      {
+        "h": 19,
+        "label": "19:00",
+        "trips": 63483,
+        "records": 2171,
+        "byMode": {
+          "transit": 998,
+          "cycle": 653,
+          "drive": 42257,
+          "ride": 16729,
+          "walk": 2550,
+          "other": 231,
+          "schoolBus": 65
+        },
+        "byPurpose": {
+          "Home-Based Work": 9347,
+          "Home-based School": 1070,
+          "Home-based Discretionary": 43348,
+          "Non Home-based": 9718
+        }
+      },
+      {
+        "h": 20,
+        "label": "20:00",
+        "trips": 45206,
+        "records": 1473,
+        "byMode": {
+          "transit": 956,
+          "cycle": 174,
+          "drive": 28416,
+          "ride": 13898,
+          "other": 549,
+          "walk": 1213
+        },
+        "byPurpose": {
+          "Home-Based Work": 5230,
+          "Home-based School": 1231,
+          "Home-based Discretionary": 33679,
+          "Non Home-based": 5066
+        }
+      },
+      {
+        "h": 21,
+        "label": "21:00",
+        "trips": 29810,
+        "records": 968,
+        "byMode": {
+          "drive": 18589,
+          "transit": 1137,
+          "ride": 8608,
+          "other": 301,
+          "walk": 910,
+          "cycle": 265
+        },
+        "byPurpose": {
+          "Home-Based Work": 5609,
+          "Home-based School": 666,
+          "Home-based Discretionary": 20691,
+          "Non Home-based": 2844
+        }
+      },
+      {
+        "h": 22,
+        "label": "22:00",
+        "trips": 16977,
+        "records": 610,
+        "byMode": {
+          "transit": 377,
+          "drive": 11708,
+          "ride": 4446,
+          "other": 185,
+          "walk": 254,
+          "cycle": 7
+        },
+        "byPurpose": {
+          "Home-Based Work": 4490,
+          "Home-based School": 445,
+          "Home-based Discretionary": 10712,
+          "Non Home-based": 1330
+        }
+      },
+      {
+        "h": 23,
+        "label": "23:00",
+        "trips": 11209,
+        "records": 360,
+        "byMode": {
+          "transit": 388,
+          "cycle": 66,
+          "drive": 7989,
+          "ride": 2220,
+          "other": 346,
+          "walk": 178,
+          "schoolBus": 22
+        },
+        "byPurpose": {
+          "Home-Based Work": 4295,
+          "Home-based School": 54,
+          "Home-based Discretionary": 6082,
+          "Non Home-based": 778
+        }
+      },
+      {
+        "h": 24,
+        "label": "24:00",
+        "trips": 3438,
+        "records": 123,
+        "byMode": {
+          "cycle": 4,
+          "drive": 2530,
+          "ride": 375,
+          "other": 235,
+          "walk": 250,
+          "transit": 44
+        },
+        "byPurpose": {
+          "Home-Based Work": 1468,
+          "Home-based Discretionary": 1687,
+          "Non Home-based": 283
+        }
+      },
+      {
+        "h": 25,
+        "label": "25:00",
+        "trips": 1750,
+        "records": 55,
+        "byMode": {
+          "drive": 1424,
+          "other": 127,
+          "transit": 14,
+          "ride": 137,
+          "walk": 4,
+          "cycle": 44
+        },
+        "byPurpose": {
+          "Home-Based Work": 734,
+          "Home-based Discretionary": 983,
+          "Non Home-based": 33
+        }
+      },
+      {
+        "h": 26,
+        "label": "26:00",
+        "trips": 1247,
+        "records": 39,
+        "byMode": {
+          "cycle": 35,
+          "drive": 906,
+          "transit": 14,
+          "ride": 259,
+          "other": 33
+        },
+        "byPurpose": {
+          "Home-Based Work": 733,
+          "Home-based Discretionary": 450,
+          "Non Home-based": 64
+        }
+      },
+      {
+        "h": 27,
+        "label": "27:00",
+        "trips": 1637,
+        "records": 49,
+        "byMode": {
+          "drive": 1168,
+          "ride": 312,
+          "walk": 85,
+          "cycle": 44,
+          "other": 28
+        },
+        "byPurpose": {
+          "Home-Based Work": 906,
+          "Home-based School": 159,
+          "Home-based Discretionary": 523,
+          "Non Home-based": 49
+        }
+      }
+    ],
+    "peaks": [
+      {
+        "h": 8,
+        "trips": 156056,
+        "label": "08:00"
+      },
+      {
+        "h": 15,
+        "trips": 161115,
+        "label": "15:00"
+      }
+    ]
+  },
+  "netFlowByHour": [
+    {
+      "h": 4,
+      "inbound": 1332,
+      "outbound": 3847,
+      "net": -2515,
+      "label": "04:00"
+    },
+    {
+      "h": 5,
+      "inbound": 4873,
+      "outbound": 10306,
+      "net": -5433,
+      "label": "05:00"
+    },
+    {
+      "h": 6,
+      "inbound": 7893,
+      "outbound": 19026,
+      "net": -11133,
+      "label": "06:00"
+    },
+    {
+      "h": 7,
+      "inbound": 11600,
+      "outbound": 26734,
+      "net": -15134,
+      "label": "07:00"
+    },
+    {
+      "h": 8,
+      "inbound": 9604,
+      "outbound": 19344,
+      "net": -9740,
+      "label": "08:00"
+    },
+    {
+      "h": 9,
+      "inbound": 7882,
+      "outbound": 11455,
+      "net": -3573,
+      "label": "09:00"
+    },
+    {
+      "h": 10,
+      "inbound": 7436,
+      "outbound": 9600,
+      "net": -2164,
+      "label": "10:00"
+    },
+    {
+      "h": 11,
+      "inbound": 6194,
+      "outbound": 8875,
+      "net": -2681,
+      "label": "11:00"
+    },
+    {
+      "h": 12,
+      "inbound": 7431,
+      "outbound": 6158,
+      "net": 1273,
+      "label": "12:00"
+    },
+    {
+      "h": 13,
+      "inbound": 7577,
+      "outbound": 7158,
+      "net": 419,
+      "label": "13:00"
+    },
+    {
+      "h": 14,
+      "inbound": 12296,
+      "outbound": 9084,
+      "net": 3212,
+      "label": "14:00"
+    },
+    {
+      "h": 15,
+      "inbound": 22778,
+      "outbound": 13300,
+      "net": 9478,
+      "label": "15:00"
+    },
+    {
+      "h": 16,
+      "inbound": 25869,
+      "outbound": 17238,
+      "net": 8631,
+      "label": "16:00"
+    },
+    {
+      "h": 17,
+      "inbound": 24638,
+      "outbound": 14164,
+      "net": 10474,
+      "label": "17:00"
+    },
+    {
+      "h": 18,
+      "inbound": 15386,
+      "outbound": 9696,
+      "net": 5690,
+      "label": "18:00"
+    },
+    {
+      "h": 19,
+      "inbound": 9584,
+      "outbound": 5884,
+      "net": 3700,
+      "label": "19:00"
+    },
+    {
+      "h": 20,
+      "inbound": 5156,
+      "outbound": 3989,
+      "net": 1167,
+      "label": "20:00"
+    },
+    {
+      "h": 21,
+      "inbound": 4410,
+      "outbound": 4325,
+      "net": 85,
+      "label": "21:00"
+    },
+    {
+      "h": 22,
+      "inbound": 3841,
+      "outbound": 2139,
+      "net": 1702,
+      "label": "22:00"
+    },
+    {
+      "h": 23,
+      "inbound": 3297,
+      "outbound": 1246,
+      "net": 2051,
+      "label": "23:00"
+    },
+    {
+      "h": 24,
+      "inbound": 1218,
+      "outbound": 738,
+      "net": 480,
+      "label": "24:00"
+    },
+    {
+      "h": 25,
+      "inbound": 532,
+      "outbound": 208,
+      "net": 324,
+      "label": "25:00"
+    },
+    {
+      "h": 26,
+      "inbound": 694,
+      "outbound": 214,
+      "net": 480,
+      "label": "26:00"
+    },
+    {
+      "h": 27,
+      "inbound": 453,
+      "outbound": 419,
+      "net": 34,
+      "label": "27:00"
+    }
+  ],
+  "purposeShareByHour": [
+    {
+      "h": 4,
+      "work": 0.8271060979908353,
+      "school": 0,
+      "discretionary": 0.12636587945012337,
+      "nhb": 0.04652802255904124,
+      "trips": 5674,
+      "label": "04:00"
+    },
+    {
+      "h": 5,
+      "work": 0.8478962660066717,
+      "school": 0.011567846766383299,
+      "discretionary": 0.12197352846228345,
+      "nhb": 0.018562358764661575,
+      "trips": 18586,
+      "label": "05:00"
+    },
+    {
+      "h": 6,
+      "work": 0.8048744278114561,
+      "school": 0.04357293084250897,
+      "discretionary": 0.12247927749597921,
+      "nhb": 0.029073363850055673,
+      "trips": 40415,
+      "label": "06:00"
+    },
+    {
+      "h": 7,
+      "work": 0.4465186200072311,
+      "school": 0.26689311335654886,
+      "discretionary": 0.22644668988220967,
+      "nhb": 0.06014157675401039,
+      "trips": 105102,
+      "label": "07:00"
+    },
+    {
+      "h": 8,
+      "work": 0.2108153483364946,
+      "school": 0.3629594504536833,
+      "discretionary": 0.33739811349771875,
+      "nhb": 0.08882708771210335,
+      "trips": 156056,
+      "label": "08:00"
+    },
+    {
+      "h": 9,
+      "work": 0.17427991294515302,
+      "school": 0.2096976181502061,
+      "discretionary": 0.48873515143409485,
+      "nhb": 0.12728731747054603,
+      "trips": 82247,
+      "label": "09:00"
+    },
+    {
+      "h": 10,
+      "work": 0.130364003386078,
+      "school": 0.032770072279742136,
+      "discretionary": 0.6426710946148336,
+      "nhb": 0.19419482971934623,
+      "trips": 61428,
+      "label": "10:00"
+    },
+    {
+      "h": 11,
+      "work": 0.08325925925925926,
+      "school": 0.03569590643274854,
+      "discretionary": 0.6569356725146199,
+      "nhb": 0.2241091617933723,
+      "trips": 64125,
+      "label": "11:00"
+    },
+    {
+      "h": 12,
+      "work": 0.11452214487413738,
+      "school": 0.04030321791522583,
+      "discretionary": 0.6005013363937001,
+      "nhb": 0.24467330081693672,
+      "trips": 66223,
+      "label": "12:00"
+    },
+    {
+      "h": 13,
+      "work": 0.14251282368209628,
+      "school": 0.026219022310116805,
+      "discretionary": 0.5883134540510475,
+      "nhb": 0.24295469995673938,
+      "trips": 64724,
+      "label": "13:00"
+    },
+    {
+      "h": 14,
+      "work": 0.14737063686466625,
+      "school": 0.22955258726270666,
+      "discretionary": 0.42919473361910593,
+      "nhb": 0.19388204225352113,
+      "trips": 104512,
+      "label": "14:00"
+    },
+    {
+      "h": 15,
+      "work": 0.1762405735033982,
+      "school": 0.3204667473543742,
+      "discretionary": 0.3625609037023244,
+      "nhb": 0.14073177543990317,
+      "trips": 161115,
+      "label": "15:00"
+    },
+    {
+      "h": 16,
+      "work": 0.3014031423122332,
+      "school": 0.10541730996276451,
+      "discretionary": 0.4279584052311325,
+      "nhb": 0.16522114249386977,
+      "trips": 132132,
+      "label": "16:00"
+    },
+    {
+      "h": 17,
+      "work": 0.31290357702196797,
+      "school": 0.0462726442827112,
+      "discretionary": 0.49720689106456395,
+      "nhb": 0.14361688763075686,
+      "trips": 119401,
+      "label": "17:00"
+    },
+    {
+      "h": 18,
+      "work": 0.1776731063504208,
+      "school": 0.023419567712318286,
+      "discretionary": 0.6583540550879877,
+      "nhb": 0.14055327084927313,
+      "trips": 83648,
+      "label": "18:00"
+    },
+    {
+      "h": 19,
+      "work": 0.14723626797725375,
+      "school": 0.0168549060378369,
+      "discretionary": 0.6828284737646299,
+      "nhb": 0.15308035222027944,
+      "trips": 63483,
+      "label": "19:00"
+    },
+    {
+      "h": 20,
+      "work": 0.11569260717603858,
+      "school": 0.027230898553289386,
+      "discretionary": 0.7450117241074193,
+      "nhb": 0.11206477016325267,
+      "trips": 45206,
+      "label": "20:00"
+    },
+    {
+      "h": 21,
+      "work": 0.18815833612881583,
+      "school": 0.02234149614223415,
+      "discretionary": 0.6940959409594096,
+      "nhb": 0.09540422676954043,
+      "trips": 29810,
+      "label": "21:00"
+    },
+    {
+      "h": 22,
+      "work": 0.2644754668080344,
+      "school": 0.026211933792778464,
+      "discretionary": 0.6309713141308829,
+      "nhb": 0.07834128526830418,
+      "trips": 16977,
+      "label": "22:00"
+    },
+    {
+      "h": 23,
+      "work": 0.3831742349897404,
+      "school": 0.0048175573200107055,
+      "discretionary": 0.5425996966723169,
+      "nhb": 0.06940851101793202,
+      "trips": 11209,
+      "label": "23:00"
+    },
+    {
+      "h": 24,
+      "work": 0.4269924374636416,
+      "school": 0,
+      "discretionary": 0.4906922629435718,
+      "nhb": 0.08231529959278651,
+      "trips": 3438,
+      "label": "24:00"
+    },
+    {
+      "h": 25,
+      "work": 0.41942857142857143,
+      "school": 0,
+      "discretionary": 0.5617142857142857,
+      "nhb": 0.018857142857142857,
+      "trips": 1750,
+      "label": "25:00"
+    },
+    {
+      "h": 26,
+      "work": 0.5878107457898958,
+      "school": 0,
+      "discretionary": 0.3608660785886127,
+      "nhb": 0.05132317562149158,
+      "trips": 1247,
+      "label": "26:00"
+    },
+    {
+      "h": 27,
+      "work": 0.5534514355528406,
+      "school": 0.09712889431887599,
+      "discretionary": 0.3194868662186927,
+      "nhb": 0.029932803909590716,
+      "trips": 1637,
+      "label": "27:00"
+    }
+  ],
+  "modeTable": [
+    {
+      "mode": "transit",
+      "inbound": 0.06926801255457975,
+      "outbound": 0.07000945612649763,
+      "internal": 0.021393138017457437
+    },
+    {
+      "mode": "cycle",
+      "inbound": 0.0008663452113387262,
+      "outbound": 0.0010430984899443357,
+      "internal": 0.007938812548612912
+    },
+    {
+      "mode": "drive",
+      "inbound": 0.7829483460232279,
+      "outbound": 0.7756070930697316,
+      "internal": 0.6191651542649728
+    },
+    {
+      "mode": "other",
+      "inbound": 0.006584223606174318,
+      "outbound": 0.004742686124840367,
+      "internal": 0.00620862501080287
+    },
+    {
+      "mode": "ride",
+      "inbound": 0.13502113882315667,
+      "outbound": 0.14158355998791175,
+      "internal": 0.19840031112263418
+    },
+    {
+      "mode": "schoolBus",
+      "inbound": 0.004980247329181477,
+      "outbound": 0.005824778950857388,
+      "internal": 0.044173364445596754
+    },
+    {
+      "mode": "walk",
+      "inbound": 0.0003316864523411123,
+      "outbound": 0.001189327250216906,
+      "internal": 0.10272059458992308
+    }
+  ],
+  "purposeGeo": [
+    {
+      "purpose": "Home-Based Work",
+      "total": 275573,
+      "same": 0.3358601894960682,
+      "crossDurham": 0.38656181846552456,
+      "toronto": 0.17398656617302857,
+      "elsewhere": 0.10359142586537869
+    },
+    {
+      "purpose": "Home-based School",
+      "total": 206834,
+      "same": 0.8588674976067765,
+      "crossDurham": 0.10808667820571086,
+      "toronto": 0.02265584961853467,
+      "elsewhere": 0.01038997456897802
+    },
+    {
+      "purpose": "Home-based Discretionary",
+      "total": 636634,
+      "same": 0.7064938410452474,
+      "crossDurham": 0.2330334226572882,
+      "toronto": 0.0281637487159027,
+      "elsewhere": 0.032308987581561775
+    },
+    {
+      "purpose": "Non Home-based",
+      "total": 159259,
+      "same": 0.6254089250842967,
+      "crossDurham": 0.29688746004935357,
+      "toronto": 0.04235867360714308,
+      "elsewhere": 0.0353449412592067
+    }
+  ],
+  "ageTable": [
+    {
+      "group": "5–14",
+      "trips": 203262,
+      "records": 5026,
+      "driveShare": 0,
+      "walkShare": 0.24733595064498037,
+      "passShare": 0.5271324694236995,
+      "topPurpose": "Home-based School"
+    },
+    {
+      "group": "15–24",
+      "trips": 160041,
+      "records": 4074,
+      "driveShare": 0.3836391924569329,
+      "walkShare": 0.11261489243381384,
+      "passShare": 0.2989483944739161,
+      "topPurpose": "Home-based School"
+    },
+    {
+      "group": "25–44",
+      "trips": 432655,
+      "records": 12594,
+      "driveShare": 0.7873155285389052,
+      "walkShare": 0.06335070668315401,
+      "passShare": 0.09193468236816864,
+      "topPurpose": "Home-based Discretionary"
+    },
+    {
+      "group": "45–64",
+      "trips": 446031,
+      "records": 17921,
+      "driveShare": 0.8492234844663263,
+      "walkShare": 0.03150229468355339,
+      "passShare": 0.08539765173272709,
+      "topPurpose": "Home-based Discretionary"
+    },
+    {
+      "group": "65–74",
+      "trips": 129302,
+      "records": 9758,
+      "driveShare": 0.773259501013132,
+      "walkShare": 0.056286832376916056,
+      "passShare": 0.15099534423288116,
+      "topPurpose": "Home-based Discretionary"
+    },
+    {
+      "group": "75+",
+      "trips": 68857,
+      "records": 5162,
+      "driveShare": 0.7291633385131504,
+      "walkShare": 0.04590673424633661,
+      "passShare": 0.2083883991460563,
+      "topPurpose": "Home-based Discretionary"
+    }
+  ],
+  "muniBalance": [
+    {
+      "id": "brock",
+      "name": "Brock",
+      "inbound": 7611,
+      "inboundSurveyRecords": 237,
+      "outboundAllExternal": 7812,
+      "outboundBeyondSurveyArea": 21,
+      "netFlow": -201,
+      "grossExchange": 15423,
+      "netShareOfGross": 0.013032483952538417
+    },
+    {
+      "id": "uxbridge",
+      "name": "Uxbridge",
+      "inbound": 12581,
+      "inboundSurveyRecords": 439,
+      "outboundAllExternal": 12255,
+      "outboundBeyondSurveyArea": 100,
+      "netFlow": 326,
+      "grossExchange": 24836,
+      "netShareOfGross": 0.013126107263649541
+    },
+    {
+      "id": "scugog",
+      "name": "Scugog",
+      "inbound": 8125,
+      "inboundSurveyRecords": 272,
+      "outboundAllExternal": 7627,
+      "outboundBeyondSurveyArea": 41,
+      "netFlow": 498,
+      "grossExchange": 15752,
+      "netShareOfGross": 0.03161503301168106
+    },
+    {
+      "id": "pickering",
+      "name": "Pickering",
+      "inbound": 48095,
+      "inboundSurveyRecords": 1948,
+      "outboundAllExternal": 49028,
+      "outboundBeyondSurveyArea": 129,
+      "netFlow": -933,
+      "grossExchange": 97123,
+      "netShareOfGross": 0.009606375420858087
+    },
+    {
+      "id": "ajax",
+      "name": "Ajax",
+      "inbound": 34781,
+      "inboundSurveyRecords": 1423,
+      "outboundAllExternal": 35981,
+      "outboundBeyondSurveyArea": 204,
+      "netFlow": -1200,
+      "grossExchange": 70762,
+      "netShareOfGross": 0.01695825443034397
+    },
+    {
+      "id": "whitby",
+      "name": "Whitby",
+      "inbound": 33888,
+      "inboundSurveyRecords": 1334,
+      "outboundAllExternal": 35251,
+      "outboundBeyondSurveyArea": 736,
+      "netFlow": -1363,
+      "grossExchange": 69139,
+      "netShareOfGross": 0.01971390966024964
+    },
+    {
+      "id": "oshawa",
+      "name": "Oshawa",
+      "inbound": 36381,
+      "inboundSurveyRecords": 1387,
+      "outboundAllExternal": 36182,
+      "outboundBeyondSurveyArea": 287,
+      "netFlow": 199,
+      "grossExchange": 72563,
+      "netShareOfGross": 0.002742444496506484
+    },
+    {
+      "id": "clarington",
+      "name": "Clarington",
+      "inbound": 20538,
+      "inboundSurveyRecords": 784,
+      "outboundAllExternal": 21017,
+      "outboundBeyondSurveyArea": 361,
+      "netFlow": -479,
+      "grossExchange": 41555,
+      "netShareOfGross": 0.01152689207074961
+    }
+  ],
+  "candidates": [
+    {
+      "id": "inbound-outbound-balance",
+      "theme": "inbound",
+      "finding": "Durham's travel market is nearly balanced: 202,000 trips come INTO Durham from outside on an average weekday and 205,153 go OUT — an inbound/outbound ratio of 0.98. Roughly 2.1% of the region's 19.5M trips cross Durham's boundary in either direction.",
+      "metrics": [
+        {
+          "label": "inbound",
+          "value": 202000,
+          "unit": "trips"
+        },
+        {
+          "label": "outbound",
+          "value": 205153,
+          "unit": "trips"
+        },
+        {
+          "label": "internal",
+          "value": 1157095,
+          "unit": "trips"
+        },
+        {
+          "label": "inbound/outbound",
+          "value": 0.9846309827299625,
+          "unit": "ratio"
+        }
+      ],
+      "sourceIds": [
+        "A",
+        "B"
+      ],
+      "sampleSupport": 15763,
+      "caveats": [
+        "Trip balance is not an economic-attraction measure; it counts trips, not jobs or shoppers."
+      ],
+      "possibleVisualization": "Boundary exchange dial / two-arrow balance graphic opening 'Who Comes to Durham?'.",
+      "scores": {
+        "surprise": 4,
+        "relevance": 5,
+        "visual": 4,
+        "confidence": 5,
+        "support": 5,
+        "novelty": 5
+      },
+      "totalScore": 28,
+      "recommendation": "BUILD"
+    },
+    {
+      "id": "day-shape-two-peaks",
+      "theme": "time",
+      "finding": "The Durham day is a twin-peak day with the afternoon ahead: 156,056 trips start in the 08:00 hour and 161,115 in the 15:00 hour — the afternoon peak is the biggest of the day. The region is nearly still at 04:00 (5,674 trips) and survey-hours 24:00–27:00 hold just 8,072.",
+      "metrics": [
+        {
+          "label": "08:00 hour trips",
+          "value": 156056,
+          "unit": "trips"
+        },
+        {
+          "label": "15:00 hour trips",
+          "value": 161115,
+          "unit": "trips"
+        },
+        {
+          "label": "04:00 hour trips",
+          "value": 5674,
+          "unit": "trips"
+        },
+        {
+          "label": "distinct peaks",
+          "value": 2,
+          "unit": "peaks"
+        },
+        {
+          "label": "day total",
+          "value": 1440145,
+          "unit": "trips"
+        }
+      ],
+      "sourceIds": [
+        "F",
+        "F-unexp"
+      ],
+      "sampleSupport": 54535,
+      "caveats": [
+        "Departure time, not arrival time; 2022 full basis (ages 5+, all walk trips). Survey hours run 04:00–27:59."
+      ],
+      "possibleVisualization": "Clock + volume curve synchronized with map animation (A Day in Durham).",
+      "scores": {
+        "surprise": 4,
+        "relevance": 5,
+        "visual": 5,
+        "confidence": 5,
+        "support": 4,
+        "novelty": 4
+      },
+      "totalScore": 27,
+      "recommendation": "BUILD"
+    },
+    {
+      "id": "inbound-municipal-balances",
+      "theme": "inbound",
+      "finding": "Boundary travel is a two-way river at every municipality: net imbalances are tiny relative to the exchange — Oshawa balances to 0.3% of its two-way flow and even Scugog, the most lopsided, sits at 3.2%. Gross exchange varies six-fold, from 15,423 (Brock) to 97,123 (Pickering).",
+      "metrics": [
+        {
+          "label": "Brock inbound",
+          "value": 7611,
+          "unit": "trips"
+        },
+        {
+          "label": "Brock net",
+          "value": -201,
+          "unit": "trips"
+        },
+        {
+          "label": "Brock net share of gross",
+          "value": 0.013032483952538417,
+          "unit": "share"
+        },
+        {
+          "label": "Uxbridge inbound",
+          "value": 12581,
+          "unit": "trips"
+        },
+        {
+          "label": "Uxbridge net",
+          "value": 326,
+          "unit": "trips"
+        },
+        {
+          "label": "Uxbridge net share of gross",
+          "value": 0.013126107263649541,
+          "unit": "share"
+        },
+        {
+          "label": "Scugog inbound",
+          "value": 8125,
+          "unit": "trips"
+        },
+        {
+          "label": "Scugog net",
+          "value": 498,
+          "unit": "trips"
+        },
+        {
+          "label": "Scugog net share of gross",
+          "value": 0.03161503301168106,
+          "unit": "share"
+        },
+        {
+          "label": "Pickering inbound",
+          "value": 48095,
+          "unit": "trips"
+        },
+        {
+          "label": "Pickering net",
+          "value": -933,
+          "unit": "trips"
+        },
+        {
+          "label": "Pickering net share of gross",
+          "value": 0.009606375420858087,
+          "unit": "share"
+        },
+        {
+          "label": "Ajax inbound",
+          "value": 34781,
+          "unit": "trips"
+        },
+        {
+          "label": "Ajax net",
+          "value": -1200,
+          "unit": "trips"
+        },
+        {
+          "label": "Ajax net share of gross",
+          "value": 0.01695825443034397,
+          "unit": "share"
+        },
+        {
+          "label": "Whitby inbound",
+          "value": 33888,
+          "unit": "trips"
+        },
+        {
+          "label": "Whitby net",
+          "value": -1363,
+          "unit": "trips"
+        },
+        {
+          "label": "Whitby net share of gross",
+          "value": 0.01971390966024964,
+          "unit": "share"
+        },
+        {
+          "label": "Oshawa inbound",
+          "value": 36381,
+          "unit": "trips"
+        },
+        {
+          "label": "Oshawa net",
+          "value": 199,
+          "unit": "trips"
+        },
+        {
+          "label": "Oshawa net share of gross",
+          "value": 0.002742444496506484,
+          "unit": "share"
+        },
+        {
+          "label": "Clarington inbound",
+          "value": 20538,
+          "unit": "trips"
+        },
+        {
+          "label": "Clarington net",
+          "value": -479,
+          "unit": "trips"
+        },
+        {
+          "label": "Clarington net share of gross",
+          "value": 0.01152689207074961,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "A",
+        "B"
+      ],
+      "sampleSupport": 7824,
+      "caveats": [
+        "Inbound counts all trips ending in the municipality from outside Durham (any household); outbound counts trips starting there to outside Durham."
+      ],
+      "possibleVisualization": "Diverging net bars under gross-exchange columns — the flatness of 'net' IS the story.",
+      "scores": {
+        "surprise": 4,
+        "relevance": 5,
+        "visual": 4,
+        "confidence": 5,
+        "support": 5,
+        "novelty": 4
+      },
+      "totalScore": 27,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "go-union-orientation",
+      "theme": "transit",
+      "finding": "GO rail for Durham households is a downtown shuttle with a two-anchor front door: 8,644 of 18,736 GO trips (46.1%) touch Union as an alighting point, and Union is also the top boarding station (8,367) — the return legs. On the line itself, Oshawa GO Station (2,729) and Whitby GO Station (2,712) are nearly tied. Riders reach these stations overwhelmingly by car: 90.8% at Oshawa, though Pickering walkers reach 26.4% without one.",
+      "metrics": [
+        {
+          "label": "GO trips (Durham households)",
+          "value": 18736,
+          "unit": "trips"
+        },
+        {
+          "label": "alight at Union",
+          "value": 8644,
+          "unit": "trips"
+        },
+        {
+          "label": "Union alighting share",
+          "value": 0.4613578138343296,
+          "unit": "share"
+        },
+        {
+          "label": "Oshawa GO Station boardings",
+          "value": 2729,
+          "unit": "trips"
+        },
+        {
+          "label": "Whitby GO Station boardings",
+          "value": 2712,
+          "unit": "trips"
+        },
+        {
+          "label": "Oshawa GO Station car access",
+          "value": 0.9076584829607915,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "O",
+        "O-unexp",
+        "N"
+      ],
+      "sampleSupport": 576,
+      "caveats": [
+        "Station OD cells rest on few survey records (Union↔Whitby ≈146 records for 2,573 expanded trips) — rankings are safe, individual small cells are not. go_on/go_off identify GO rail stations; non-rail access geography uses trip origin/destination as proxy."
+      ],
+      "possibleVisualization": "Lakeshore-East line diagram with station weights + access-mode strips (HOW DURHAM GETS TO GO).",
+      "scores": {
+        "surprise": 3,
+        "relevance": 5,
+        "visual": 5,
+        "confidence": 5,
+        "support": 4,
+        "novelty": 4
+      },
+      "totalScore": 26,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "day-purpose-phases",
+      "theme": "time",
+      "finding": "Each hour belongs to a different Durham. The 05:00 hour is 84.8% home-based work; by 08:00 school (36%) and discretionary dominate the peak; from 08:00 discretionary travel never gives the lead back. Even in mid-career hours the biggest single purpose by volume is discretionary, not work.",
+      "metrics": [
+        {
+          "label": "work share 05:00",
+          "value": 0.8478962660066717,
+          "unit": "share"
+        },
+        {
+          "label": "school share 05:00",
+          "value": 0.011567846766383299,
+          "unit": "share"
+        },
+        {
+          "label": "discretionary share 05:00",
+          "value": 0.12197352846228345,
+          "unit": "share"
+        },
+        {
+          "label": "work share 07:00",
+          "value": 0.4465186200072311,
+          "unit": "share"
+        },
+        {
+          "label": "school share 07:00",
+          "value": 0.26689311335654886,
+          "unit": "share"
+        },
+        {
+          "label": "discretionary share 07:00",
+          "value": 0.22644668988220967,
+          "unit": "share"
+        },
+        {
+          "label": "work share 08:00",
+          "value": 0.2108153483364946,
+          "unit": "share"
+        },
+        {
+          "label": "school share 08:00",
+          "value": 0.3629594504536833,
+          "unit": "share"
+        },
+        {
+          "label": "discretionary share 08:00",
+          "value": 0.33739811349771875,
+          "unit": "share"
+        },
+        {
+          "label": "work share 10:00",
+          "value": 0.130364003386078,
+          "unit": "share"
+        },
+        {
+          "label": "school share 10:00",
+          "value": 0.032770072279742136,
+          "unit": "share"
+        },
+        {
+          "label": "discretionary share 10:00",
+          "value": 0.6426710946148336,
+          "unit": "share"
+        },
+        {
+          "label": "work share 15:00",
+          "value": 0.1762405735033982,
+          "unit": "share"
+        },
+        {
+          "label": "school share 15:00",
+          "value": 0.3204667473543742,
+          "unit": "share"
+        },
+        {
+          "label": "discretionary share 15:00",
+          "value": 0.3625609037023244,
+          "unit": "share"
+        },
+        {
+          "label": "work share 18:00",
+          "value": 0.1776731063504208,
+          "unit": "share"
+        },
+        {
+          "label": "school share 18:00",
+          "value": 0.023419567712318286,
+          "unit": "share"
+        },
+        {
+          "label": "discretionary share 18:00",
+          "value": 0.6583540550879877,
+          "unit": "share"
+        },
+        {
+          "label": "work share 20:00",
+          "value": 0.11569260717603858,
+          "unit": "share"
+        },
+        {
+          "label": "school share 20:00",
+          "value": 0.027230898553289386,
+          "unit": "share"
+        },
+        {
+          "label": "discretionary share 20:00",
+          "value": 0.7450117241074193,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "F"
+      ],
+      "caveats": [
+        "Broad purpose categories; shares of each hour's trip-starts."
+      ],
+      "possibleVisualization": "Stacked purpose ribbon flowing through the day.",
+      "scores": {
+        "surprise": 4,
+        "relevance": 4,
+        "visual": 5,
+        "confidence": 5,
+        "support": 3,
+        "novelty": 4
+      },
+      "totalScore": 25,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "why-people-come",
+      "theme": "inbound",
+      "finding": "116,586 inbound trips (57.7%) end at Home — Durham residents coming back. The remaining 85,398 trips arrive for an activity in Durham: Usual Work, Shopping, Other Work-related lead, with \"Usual Work\" at 29.5% — meaning 70.5% of inbound activity travel is not commuting at all.",
+      "metrics": [
+        {
+          "label": "Usual Work (share of activity inbound)",
+          "value": 0.29486639031359047,
+          "unit": "share"
+        },
+        {
+          "label": "Shopping (share of activity inbound)",
+          "value": 0.10962786013723975,
+          "unit": "share"
+        },
+        {
+          "label": "Other Work-related (share of activity inbound)",
+          "value": 0.0961849223635214,
+          "unit": "share"
+        },
+        {
+          "label": "Recreation/sports/leisure/arts (share of activity inbound)",
+          "value": 0.08960397198997634,
+          "unit": "share"
+        },
+        {
+          "label": "Visiting friends/family (share of activity inbound)",
+          "value": 0.08294105248366472,
+          "unit": "share"
+        },
+        {
+          "label": "Attend school (share of activity inbound)",
+          "value": 0.048818473500550366,
+          "unit": "share"
+        },
+        {
+          "label": "Pick up a passenger (share of activity inbound)",
+          "value": 0.04849059696948406,
+          "unit": "share"
+        },
+        {
+          "label": "Health and personal care (share of activity inbound)",
+          "value": 0.04628914026089604,
+          "unit": "share"
+        },
+        {
+          "label": "Restaurant/food (share of activity inbound)",
+          "value": 0.043490479870722965,
+          "unit": "share"
+        },
+        {
+          "label": "Working on the road (share of activity inbound)",
+          "value": 0.037132017143258624,
+          "unit": "share"
+        },
+        {
+          "label": "Drop off a passenger (share of activity inbound)",
+          "value": 0.0305744865219326,
+          "unit": "share"
+        },
+        {
+          "label": "Services (share of activity inbound)",
+          "value": 0.02694442492798426,
+          "unit": "share"
+        },
+        {
+          "label": "Daycare pickup/dropoff (share of activity inbound)",
+          "value": 0.022237054731960935,
+          "unit": "share"
+        },
+        {
+          "label": "Religious activity (share of activity inbound)",
+          "value": 0.00815007377221949,
+          "unit": "share"
+        },
+        {
+          "label": "Other (share of activity inbound)",
+          "value": 0.00800955525890536,
+          "unit": "share"
+        },
+        {
+          "label": "Pick up a package/online purchase (share of activity inbound)",
+          "value": 0.0065106911168879835,
+          "unit": "share"
+        },
+        {
+          "label": "Voting in election (share of activity inbound)",
+          "value": 0.00012880863720461837,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "D2"
+      ],
+      "caveats": [
+        "Detailed destination purpose of the Durham-ending leg, all surveyed households. 'Ends at Home' trips cannot be split resident vs visitor without a household filter, so they are treated as a separate class rather than assumed."
+      ],
+      "possibleVisualization": "Two-tier donut: Home-ending vs activity inbound; ranked purpose bars inside (WHY PEOPLE COME).",
+      "scores": {
+        "surprise": 4,
+        "relevance": 5,
+        "visual": 4,
+        "confidence": 5,
+        "support": 2,
+        "novelty": 5
+      },
+      "totalScore": 25,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "day-net-external-flow",
+      "theme": "time",
+      "finding": "Durham's net exchange with the rest of the region swings hard across the day: net OUTFLOW bottoms at 07:00 (−15,134 trips in the hour) as residents leave, then flips to net INFLOW peaking at 17:00 (+10,474) as the day's trips come home. Durham is an origin at some hours and a destination at others.",
+      "metrics": [
+        {
+          "label": "net flow 07:00",
+          "value": -15134,
+          "unit": "trips"
+        },
+        {
+          "label": "net flow 17:00",
+          "value": 10474,
+          "unit": "trips"
+        }
+      ],
+      "sourceIds": [
+        "G",
+        "H"
+      ],
+      "caveats": [
+        "Trips with a Durham endpoint and known start time; midnight+ survey hours excluded from the headline search. A trip's 'return' is its own departure, so net inflow hours are dominated by journeys home."
+      ],
+      "possibleVisualization": "Net-flow line crossing zero over the day, paired with inbound/outbound bands.",
+      "scores": {
+        "surprise": 4,
+        "relevance": 4,
+        "visual": 4,
+        "confidence": 4,
+        "support": 3,
+        "novelty": 5
+      },
+      "totalScore": 24,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "coming-vs-leaving-modes",
+      "theme": "inbound",
+      "finding": "Coming to Durham and leaving it are near mirror images: driving carries 78.3% of inbound vs 77.6% of outbound boundary trips, and transit splits 6.9% vs 7.0%. The boundary effect is what vanishes: only 67 inbound trips are on foot, against 118,858 walking trips inside Durham — the boundary is crossed almost entirely by motor vehicles (92% counting passengers).",
+      "metrics": [
+        {
+          "label": "transit inbound",
+          "value": 0.06926801255457975,
+          "unit": "share"
+        },
+        {
+          "label": "transit outbound",
+          "value": 0.07000945612649763,
+          "unit": "share"
+        },
+        {
+          "label": "transit internal",
+          "value": 0.021393138017457437,
+          "unit": "share"
+        },
+        {
+          "label": "cycle inbound",
+          "value": 0.0008663452113387262,
+          "unit": "share"
+        },
+        {
+          "label": "cycle outbound",
+          "value": 0.0010430984899443357,
+          "unit": "share"
+        },
+        {
+          "label": "cycle internal",
+          "value": 0.007938812548612912,
+          "unit": "share"
+        },
+        {
+          "label": "drive inbound",
+          "value": 0.7829483460232279,
+          "unit": "share"
+        },
+        {
+          "label": "drive outbound",
+          "value": 0.7756070930697316,
+          "unit": "share"
+        },
+        {
+          "label": "drive internal",
+          "value": 0.6191651542649728,
+          "unit": "share"
+        },
+        {
+          "label": "other inbound",
+          "value": 0.006584223606174318,
+          "unit": "share"
+        },
+        {
+          "label": "other outbound",
+          "value": 0.004742686124840367,
+          "unit": "share"
+        },
+        {
+          "label": "other internal",
+          "value": 0.00620862501080287,
+          "unit": "share"
+        },
+        {
+          "label": "ride inbound",
+          "value": 0.13502113882315667,
+          "unit": "share"
+        },
+        {
+          "label": "ride outbound",
+          "value": 0.14158355998791175,
+          "unit": "share"
+        },
+        {
+          "label": "ride internal",
+          "value": 0.19840031112263418,
+          "unit": "share"
+        },
+        {
+          "label": "schoolBus inbound",
+          "value": 0.004980247329181477,
+          "unit": "share"
+        },
+        {
+          "label": "schoolBus outbound",
+          "value": 0.005824778950857388,
+          "unit": "share"
+        },
+        {
+          "label": "schoolBus internal",
+          "value": 0.044173364445596754,
+          "unit": "share"
+        },
+        {
+          "label": "walk inbound",
+          "value": 0.0003316864523411123,
+          "unit": "share"
+        },
+        {
+          "label": "walk outbound",
+          "value": 0.001189327250216906,
+          "unit": "share"
+        },
+        {
+          "label": "walk internal",
+          "value": 0.10272059458992308,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "C",
+        "A"
+      ],
+      "caveats": [
+        "Boundary-crossing trips only, all surveyed households; small modes (cycle, motorcycle) have thin survey support at the boundary."
+      ],
+      "possibleVisualization": "Back-to-back mode bars (inbound vs outbound) plus a 'what vanishes at the boundary' inset.",
+      "scores": {
+        "surprise": 5,
+        "relevance": 4,
+        "visual": 4,
+        "confidence": 4,
+        "support": 2,
+        "novelty": 5
+      },
+      "totalScore": 24,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "every-mode-own-map",
+      "theme": "mode-geography",
+      "finding": "Each mode lives at a different scale: the median reported trip distance is <1 km for walking, 1–2 km for cycling, 5–10 km for driving and 10–20 km for transit. 15.9% of drive trips are under 2 km straight-line — a pattern, not a verdict that they could have been walked.",
+      "metrics": [
+        {
+          "label": "walk median band",
+          "value": 0,
+          "unit": "<1 km"
+        },
+        {
+          "label": "cycle median band",
+          "value": 0,
+          "unit": "1–2 km"
+        },
+        {
+          "label": "drive median band",
+          "value": 0,
+          "unit": "5–10 km"
+        },
+        {
+          "label": "transit median band",
+          "value": 0,
+          "unit": "10–20 km"
+        },
+        {
+          "label": "drive trips <2km",
+          "value": 147633,
+          "unit": "trips"
+        },
+        {
+          "label": "drive <2km share",
+          "value": 0.15857379928142168,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "I",
+        "C"
+      ],
+      "caveats": [
+        "Straight-line (not routed) distance; bands use reported whole km. Short auto trips are not automatically replaceable by walking or cycling."
+      ],
+      "possibleVisualization": "One map that physically rescales per mode (EVERY MODE HAS ITS OWN MAP).",
+      "scores": {
+        "surprise": 3,
+        "relevance": 5,
+        "visual": 5,
+        "confidence": 5,
+        "support": 3,
+        "novelty": 3
+      },
+      "totalScore": 24,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "age-mobility-ladder",
+      "theme": "age",
+      "finding": "Car dependence is climbed, then partly descended: children 5–14 drive nothing (they ride in 52.7% of trips and walk 24.7%); driving climbs through ages 15–24 (38.4%) to a peak of 84.9% at 45–64, then steps down after 65 (77.3% at 65–74, 72.9% at 75+) while being a passenger climbs back up to 20.8%.",
+      "metrics": [
+        {
+          "label": "5–14 drive share",
+          "value": 0,
+          "unit": "share"
+        },
+        {
+          "label": "5–14 passenger share",
+          "value": 0.5271324694236995,
+          "unit": "share"
+        },
+        {
+          "label": "5–14 walk share",
+          "value": 0.24733595064498037,
+          "unit": "share"
+        },
+        {
+          "label": "15–24 drive share",
+          "value": 0.3836391924569329,
+          "unit": "share"
+        },
+        {
+          "label": "15–24 passenger share",
+          "value": 0.2989483944739161,
+          "unit": "share"
+        },
+        {
+          "label": "15–24 walk share",
+          "value": 0.11261489243381384,
+          "unit": "share"
+        },
+        {
+          "label": "25–44 drive share",
+          "value": 0.7873155285389052,
+          "unit": "share"
+        },
+        {
+          "label": "25–44 passenger share",
+          "value": 0.09193468236816864,
+          "unit": "share"
+        },
+        {
+          "label": "25–44 walk share",
+          "value": 0.06335070668315401,
+          "unit": "share"
+        },
+        {
+          "label": "45–64 drive share",
+          "value": 0.8492234844663263,
+          "unit": "share"
+        },
+        {
+          "label": "45–64 passenger share",
+          "value": 0.08539765173272709,
+          "unit": "share"
+        },
+        {
+          "label": "45–64 walk share",
+          "value": 0.03150229468355339,
+          "unit": "share"
+        },
+        {
+          "label": "65–74 drive share",
+          "value": 0.773259501013132,
+          "unit": "share"
+        },
+        {
+          "label": "65–74 passenger share",
+          "value": 0.15099534423288116,
+          "unit": "share"
+        },
+        {
+          "label": "65–74 walk share",
+          "value": 0.056286832376916056,
+          "unit": "share"
+        },
+        {
+          "label": "75+ drive share",
+          "value": 0.7291633385131504,
+          "unit": "share"
+        },
+        {
+          "label": "75+ passenger share",
+          "value": 0.2083883991460563,
+          "unit": "share"
+        },
+        {
+          "label": "75+ walk share",
+          "value": 0.04590673424633661,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "K",
+        "K-unexp",
+        "L"
+      ],
+      "sampleSupport": 54535,
+      "caveats": [
+        "Shares of each age group's trips; group sizes differ — never compare raw trip counts across ages without population denominators. Age is the trip-maker's age, household vehicles the context."
+      ],
+      "possibleVisualization": "Age slope charts: drive/passenger/walk shares across six age bands (DURHAM CHANGES WITH AGE).",
+      "scores": {
+        "surprise": 3,
+        "relevance": 4,
+        "visual": 4,
+        "confidence": 5,
+        "support": 4,
+        "novelty": 4
+      },
+      "totalScore": 24,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "transit-journey-complexity",
+      "theme": "transit",
+      "finding": "The journey to the journey is often multi-link: among drive-access GO riders, 49.6% of GO journeys use 2+ transit links, vs 52.1% for drive-access local-transit journeys. n_route counts transit links, not public-facing transfers.",
+      "metrics": [
+        {
+          "label": "go Walk-access transit journeys",
+          "value": 3012,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Walk-access transit 2+ links",
+          "value": 2499,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Drive-access transit journeys",
+          "value": 11706,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Drive-access transit 2+ links",
+          "value": 5812,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Drive-access transit- Passenger journeys",
+          "value": 3915,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Drive-access transit- Passenger 2+ links",
+          "value": 2681,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Bicycle-access transit journeys",
+          "value": 80,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Bicycle-access transit 2+ links",
+          "value": 58,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Other-access transit journeys",
+          "value": 22,
+          "unit": "journeys"
+        },
+        {
+          "label": "go Other-access transit 2+ links",
+          "value": 8,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Walk-access transit journeys",
+          "value": 28413,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Walk-access transit 2+ links",
+          "value": 11391,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Drive-access transit journeys",
+          "value": 1177,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Drive-access transit 2+ links",
+          "value": 613,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Drive-access transit- Passenger journeys",
+          "value": 1546,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Drive-access transit- Passenger 2+ links",
+          "value": 735,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Bicycle-access transit journeys",
+          "value": 882,
+          "unit": "journeys"
+        },
+        {
+          "label": "nonGo Bicycle-access transit 2+ links",
+          "value": 240,
+          "unit": "journeys"
+        }
+      ],
+      "sourceIds": [
+        "P",
+        "P-unexp",
+        "N"
+      ],
+      "sampleSupport": 50753,
+      "caveats": [
+        "Two links generally imply a change between links, but n_route is a route-count, not a transfer count in the intuitive public sense."
+      ],
+      "possibleVisualization": "Journey stack diagram: access → links → egress (THE TRANSIT JOURNEY).",
+      "scores": {
+        "surprise": 3,
+        "relevance": 4,
+        "visual": 4,
+        "confidence": 4,
+        "support": 4,
+        "novelty": 4
+      },
+      "totalScore": 23,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "four-durhams-purpose-geography",
+      "theme": "mode-geography",
+      "finding": "Purpose creates different geographies: 96.7% of home-based school travel stays in Durham vs 72.2% of home-based work; work sends 17.4% of its trips to Toronto vs school's 2.3%.",
+      "metrics": [
+        {
+          "label": "Home-Based Work in-Durham",
+          "value": 0.7224220079615928,
+          "unit": "share"
+        },
+        {
+          "label": "Home-Based Work Toronto",
+          "value": 0.17398656617302857,
+          "unit": "share"
+        },
+        {
+          "label": "Home-based School in-Durham",
+          "value": 0.9669541758124873,
+          "unit": "share"
+        },
+        {
+          "label": "Home-based School Toronto",
+          "value": 0.02265584961853467,
+          "unit": "share"
+        },
+        {
+          "label": "Home-based Discretionary in-Durham",
+          "value": 0.9395272637025356,
+          "unit": "share"
+        },
+        {
+          "label": "Home-based Discretionary Toronto",
+          "value": 0.0281637487159027,
+          "unit": "share"
+        },
+        {
+          "label": "Non Home-based in-Durham",
+          "value": 0.9222963851336503,
+          "unit": "share"
+        },
+        {
+          "label": "Non Home-based Toronto",
+          "value": 0.04235867360714308,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "E"
+      ],
+      "caveats": [
+        "Durham-origin trips by Durham households; broad purpose only."
+      ],
+      "possibleVisualization": "Purpose switcher on the network map (THERE ISN'T ONE DURHAM NETWORK).",
+      "scores": {
+        "surprise": 3,
+        "relevance": 4,
+        "visual": 4,
+        "confidence": 5,
+        "support": 2,
+        "novelty": 3
+      },
+      "totalScore": 21,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "station-access-profiles",
+      "theme": "transit",
+      "finding": "Each station has its own front door: car access (driven + dropped off) ranges from 90.8% at Oshawa down to 73.3% at Pickering, where 26.4% of riders simply walk to the platform. Catchments differ station by station.",
+      "metrics": [
+        {
+          "label": "Oshawa GO Station car access share",
+          "value": 0.9076584829607915,
+          "unit": "share"
+        },
+        {
+          "label": "Oshawa GO Station walk access share",
+          "value": 0.0923415170392085,
+          "unit": "share"
+        },
+        {
+          "label": "Oshawa GO Station boardings",
+          "value": 2729,
+          "unit": "trips"
+        },
+        {
+          "label": "Whitby GO Station car access share",
+          "value": 0.8768436578171092,
+          "unit": "share"
+        },
+        {
+          "label": "Whitby GO Station walk access share",
+          "value": 0.11504424778761062,
+          "unit": "share"
+        },
+        {
+          "label": "Whitby GO Station boardings",
+          "value": 2712,
+          "unit": "trips"
+        },
+        {
+          "label": "Pickering GO Station car access share",
+          "value": 0.7326732673267327,
+          "unit": "share"
+        },
+        {
+          "label": "Pickering GO Station walk access share",
+          "value": 0.26449787835926447,
+          "unit": "share"
+        },
+        {
+          "label": "Pickering GO Station boardings",
+          "value": 2121,
+          "unit": "trips"
+        },
+        {
+          "label": "Ajax GO Station car access share",
+          "value": 0.8426501035196687,
+          "unit": "share"
+        },
+        {
+          "label": "Ajax GO Station walk access share",
+          "value": 0.14233954451345757,
+          "unit": "share"
+        },
+        {
+          "label": "Ajax GO Station boardings",
+          "value": 1932,
+          "unit": "trips"
+        }
+      ],
+      "sourceIds": [
+        "N"
+      ],
+      "caveats": [
+        "Access mode as reported for the transit journey; 'Drive-access transit- Passenger' = dropped off by a driver."
+      ],
+      "possibleVisualization": "Small-multiple station profiles (walk/drive/dropoff/bike mix).",
+      "scores": {
+        "surprise": 3,
+        "relevance": 4,
+        "visual": 4,
+        "confidence": 4,
+        "support": 3,
+        "novelty": 3
+      },
+      "totalScore": 21,
+      "recommendation": "HOLD"
+    },
+    {
+      "id": "garage-changes-day",
+      "theme": "vehicle-access",
+      "finding": "In zero-vehicle households transit+walk carry 61.9% of trips; in 3+-vehicle households they carry 5.8%. Association, not causation.",
+      "metrics": [
+        {
+          "label": "zero-vehicle transit+walk share",
+          "value": 0.6192383906263462,
+          "unit": "share"
+        },
+        {
+          "label": "3+-vehicle transit+walk share",
+          "value": 0.05822093660139668,
+          "unit": "share"
+        }
+      ],
+      "sourceIds": [
+        "M"
+      ],
+      "caveats": [
+        "Household vehicle availability is associated with travel behaviour; this cross-tab does not prove causation. Households, not persons, are the vehicle unit."
+      ],
+      "possibleVisualization": "HOLD for now — likely a methodology-page insight rather than a story.",
+      "scores": {
+        "surprise": 2,
+        "relevance": 3,
+        "visual": 3,
+        "confidence": 4,
+        "support": 2,
+        "novelty": 2
+      },
+      "totalScore": 16,
+      "recommendation": "HOLD"
+    }
+  ]
+}

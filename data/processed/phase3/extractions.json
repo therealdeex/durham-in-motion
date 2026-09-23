@@ -1,0 +1,359 @@
+{
+  "generatedAt": "2026-09-23T18:39:53.122Z",
+  "extractions": [
+    {
+      "id": "A",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "pd_orig",
+      "column": "pd_dest",
+      "filters": [],
+      "expanded": true,
+      "sourceFilename": "tts2022_od_pd_all-households.csv",
+      "notes": "Full 2022 TTS OD universe, no household filter — the travel market interacting with Durham, not just Durham households.",
+      "sha256": "61073dfff9d50b4c59c359426e54b5ae18e90c54624e6f5c674d2a1275523eae",
+      "bytes": 50466,
+      "acquiredAt": "2026-09-23T17:54:25.613Z"
+    },
+    {
+      "id": "B",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "pd_orig",
+      "column": "pd_dest",
+      "filters": [],
+      "expanded": false,
+      "sourceFilename": "tts2022_od_pd_all-households_unexpanded.csv",
+      "notes": "Survey-record support for A and for every inbound/outbound headline (mirror-run rule).",
+      "sha256": "8f9b43a6bbb6098e79fd0382fd774c785930297a457814e7805f5b3db6c55b54",
+      "bytes": 41166,
+      "acquiredAt": "2026-09-23T18:01:00.380Z"
+    },
+    {
+      "id": "C",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "pd_orig",
+      "column": "pd_dest",
+      "table": "mode_prime",
+      "filters": [],
+      "expanded": true,
+      "sourceFilename": "tts2022_od_municipality_all-households_by-mode.csv",
+      "notes": "Mode for everyone travelling through Durham. PD geography ≡ municipality geography (each Durham PD is a municipality; external PDs are municipalities too).",
+      "sha256": "bff98dc3f819a7bb4cec92007b82837303e6d7a616ed1d607e44ae2e04415c4b",
+      "bytes": 661352,
+      "acquiredAt": "2026-09-23T18:02:03.468Z"
+    },
+    {
+      "id": "D",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "pd_orig",
+      "column": "pd_dest",
+      "table": "trip_purp",
+      "filters": [],
+      "expanded": true,
+      "sourceFilename": "tts2022_od_municipality_all-households_by-purpose.csv",
+      "notes": "Broad purpose (4 blocks: HBW / HB school / HB discretionary / NHB) for all households.",
+      "sha256": "33865403f7334de154d30402dbba7ba03b7752a7a876b1138afca3c842cfe41d",
+      "bytes": 176274,
+      "acquiredAt": "2026-09-23T18:02:34.964Z"
+    },
+    {
+      "id": "D2",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "pd_orig",
+      "column": "pd_dest",
+      "table": "purp_dest2022",
+      "filters": [],
+      "expanded": true,
+      "sourceFilename": "tts2022_od_municipality_all-households_by-destination-purpose.csv",
+      "notes": "Detailed 2022 destination purpose (18 blocks) — unlocks WHY people come to Durham.",
+      "sha256": "ee278f890cef5d6dc78682a228a01647d39f6c1db5492401218131a8780a08e2",
+      "bytes": 1281228,
+      "acquiredAt": "2026-09-23T18:02:59.326Z"
+    },
+    {
+      "id": "E",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "pd_orig",
+      "column": "pd_dest",
+      "table": "trip_purp",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_od_pd_durham-residents_by-purpose.csv",
+      "notes": "Purpose geography for Durham households — feeds 'there isn't one Durham network'.",
+      "sha256": "869f1f2b15167c4e64dbe1b6b541a23950917cb128b6340130054bd254b54c41",
+      "bytes": 53334,
+      "acquiredAt": "2026-09-23T18:03:12.394Z"
+    },
+    {
+      "id": "F",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "start_time",
+      "column": "mode_prime",
+      "table": "trip_purp",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_time_mode_purpose_durham-residents.csv",
+      "notes": "Regionwide temporal pulse at native 5-minute resolution; binned locally.",
+      "sha256": "f5fab30d577fb58d9f4416bd06ac7b7d058dc2489f013e92ac50848178cb791a",
+      "bytes": 47324,
+      "acquiredAt": "2026-09-23T18:03:26.427Z"
+    },
+    {
+      "id": "F-unexp",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "start_time",
+      "column": "mode_prime",
+      "table": "trip_purp",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": false,
+      "sourceFilename": "tts2022_time_mode_purpose_durham-residents_unexpanded.csv",
+      "notes": "Survey-record support for daily-pulse headlines.",
+      "sha256": "f3b8f03995b5391219f38baf529fa2da4f0ca8cbc8c1515486e90534585bf8e4",
+      "bytes": 43108,
+      "acquiredAt": "2026-09-23T18:08:11.789Z"
+    },
+    {
+      "id": "G",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "start_time",
+      "column": "pd_orig",
+      "table": "pd_dest",
+      "filters": [
+        "region_orig in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_time_od_departing-durham.csv",
+      "notes": "Time-of-day OD for trips originating in Durham, regardless of household residence. With the origin filter, col pd_orig takes only the 8 Durham codes.",
+      "sha256": "0ab2accd5c803614266c7045a6b9c80a513a0664f4a47a4c90c777d07843fa97",
+      "bytes": 396996,
+      "acquiredAt": "2026-09-23T18:05:00.893Z"
+    },
+    {
+      "id": "H",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "start_time",
+      "column": "pd_orig",
+      "table": "pd_dest",
+      "filters": [
+        "region_dest in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_time_od_arriving-durham.csv",
+      "notes": "Mirror of G for trips ending in Durham.",
+      "sha256": "25d4d8d070ec16f46a111da4e8eaca99e22f6472091e9b61386812fc32de7b2c",
+      "bytes": 386012,
+      "acquiredAt": "2026-09-23T18:05:27.082Z"
+    },
+    {
+      "id": "I",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "trip_km",
+      "column": "mode_prime",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_trip-distance_by-mode_durham-residents.csv",
+      "notes": "trip_km usable directly as row variable — reported straight-line whole km (0–6218); banded locally. Band membership uses reported integers, not routed distance.",
+      "sha256": "0f381cdec1db936f3f7ff395b5d41a6d8e3bf78fd59163becc0920e344b54ddc",
+      "bytes": 9487,
+      "acquiredAt": "2026-09-23T18:03:41.212Z"
+    },
+    {
+      "id": "J",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "trip_km",
+      "column": "trip_purp",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_trip-distance_by-purpose_durham-residents.csv",
+      "notes": "Distance × broad purpose.",
+      "sha256": "d5c6aea8d9aaf304c44b1c464d0c170d9a14318aaa3f60785142191b8d13ef92",
+      "bytes": 4639,
+      "acquiredAt": "2026-09-23T18:04:07.273Z"
+    },
+    {
+      "id": "K",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "age_range",
+      "column": "mode_prime",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_age_by-mode_durham-residents.csv",
+      "notes": "Native five-year age ranges preserved; editorial groups derived locally.",
+      "sha256": "c732db8a4550857f9a738bcaf23ba7c01606eb2eb7266c05b278896eb066f243",
+      "bytes": 1450,
+      "acquiredAt": "2026-09-23T18:04:19.530Z"
+    },
+    {
+      "id": "K-unexp",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "age_range",
+      "column": "mode_prime",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": false,
+      "sourceFilename": "tts2022_age_by-mode_durham-residents_unexpanded.csv",
+      "notes": "Survey-record support for age/mode claims (rare modes).",
+      "sha256": "32cb0e9a129a78efc5c81f3fd8a8487c61d27c34c392bcda28a3fcae83781799",
+      "bytes": 1203,
+      "acquiredAt": "2026-09-23T18:08:39.027Z"
+    },
+    {
+      "id": "L",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "age_range",
+      "column": "trip_purp",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_age_by-purpose_durham-residents.csv",
+      "notes": "Daily life by age: purpose composition per age group.",
+      "sha256": "2ac5fef54a2458701afaf1c78eec4f2d933436da0b7fdddeb89d28ae04b61110",
+      "bytes": 804,
+      "acquiredAt": "2026-09-23T18:04:32.211Z"
+    },
+    {
+      "id": "M",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "n_vehicle",
+      "column": "mode_prime",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_household-vehicles_by-mode_durham-residents.csv",
+      "notes": "Vehicle availability is associated with travel behaviour; the cross-tab does not prove causation.",
+      "sha256": "4c0d7b83387a090106cfaa9496ebebfdf839e8c6877afcdd4655c975ef2af6eb",
+      "bytes": 764,
+      "acquiredAt": "2026-09-23T18:04:45.206Z"
+    },
+    {
+      "id": "N",
+      "dataset": "Transit",
+      "surveyYear": 2022,
+      "row": "go_on",
+      "column": "tran_type",
+      "table": "pd_orig",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_go-boardings_access-type_origin-pd_durham-residents.csv",
+      "notes": "Station × access method × origin geography. Includes 'GO Rail not used' rows (local-transit-only journeys). iDRS strType for Transit is 'tran'.",
+      "sha256": "ea5257215e9b47989f59846b7e2824f593a80d0a141f880f12568c3adcf46b21",
+      "bytes": 6216,
+      "acquiredAt": "2026-09-23T18:07:00.390Z"
+    },
+    {
+      "id": "O",
+      "dataset": "Transit",
+      "surveyYear": 2022,
+      "row": "go_on",
+      "column": "go_off",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_go_station_od_durham-residents.csv",
+      "notes": "GO station-to-station matrix for Durham households.",
+      "sha256": "1e5705bf5995519febc137f405d66d3190dcfc086bad7829ed12a87edbaee971",
+      "bytes": 3131,
+      "acquiredAt": "2026-09-23T18:07:24.112Z"
+    },
+    {
+      "id": "O-unexp",
+      "dataset": "Transit",
+      "surveyYear": 2022,
+      "row": "go_on",
+      "column": "go_off",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": false,
+      "sourceFilename": "tts2022_go_station_od_durham-residents_unexpanded.csv",
+      "notes": "Survey-record support for station rankings and small cells.",
+      "sha256": "2bca93350af74b1d73aa9179d3b4bfae29762a55f11d8403b03992a69d0a905d",
+      "bytes": 3052,
+      "acquiredAt": "2026-09-23T18:07:57.217Z"
+    },
+    {
+      "id": "P",
+      "dataset": "Transit",
+      "surveyYear": 2022,
+      "row": "n_route",
+      "column": "tran_type",
+      "table": "go_on",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_transit_route-count_access-type_go-station.csv",
+      "notes": "Journey complexity: n_route counts transit links, not public-facing transfers.",
+      "sha256": "1f198409c4fd0f7d2d8004a061935073e9a6c0e120f26ab523020e16c2c65457",
+      "bytes": 3564,
+      "acquiredAt": "2026-09-23T18:07:38.562Z"
+    },
+    {
+      "id": "P-unexp",
+      "dataset": "Transit",
+      "surveyYear": 2022,
+      "row": "n_route",
+      "column": "tran_type",
+      "table": "go_on",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": false,
+      "sourceFilename": "tts2022_transit_route-count_access-type_go-station_unexpanded.csv",
+      "notes": "Survey-record support for complexity claims.",
+      "sha256": "c0ed47f13f6c27af17fded4d901829a092ef9c8e2210e68fd3471386d00a7e24",
+      "bytes": 3461,
+      "acquiredAt": "2026-09-23T18:08:24.564Z"
+    },
+    {
+      "id": "E-recheck",
+      "dataset": "Trip",
+      "surveyYear": 2022,
+      "row": "pd_orig",
+      "column": "pd_dest",
+      "table": "mode_prime",
+      "filters": [
+        "region_hhld in Durham (2)"
+      ],
+      "expanded": true,
+      "sourceFilename": "tts2022_od_pd_durham-residents_by-mode_recheck.csv",
+      "notes": "Validation extract: re-ran the Phase 2 by-mode OD query during POST-format capture; reconciles against data/raw/idrs/tts2022_od_pd_durham-residents_by-mode.csv.",
+      "sha256": "71e682fda1e25b987df5c5252fc720f4578e68fd0d6894a630f9414b382459ba",
+      "bytes": 83887,
+      "acquiredAt": "2026-09-23T17:57:27.552Z"
+    }
+  ]
+}

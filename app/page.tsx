@@ -4,22 +4,32 @@ import { MeetDurham } from "@/components/story/MeetDurham";
 import { ChapterNav } from "@/components/story/ChapterNav";
 import { ModeShare } from "@/components/viz/ModeShare";
 import { MapSection } from "@/components/viz/MapSection";
+import { InternalReveal } from "@/components/viz/InternalReveal";
+import { NetworkMap } from "@/components/viz/NetworkMap";
+import { ModeMorph } from "@/components/viz/ModeMorph";
+import { ComparableBasis } from "@/components/viz/ComparableBasis";
+import { TravelOrbit } from "@/components/story/TravelOrbit";
 import { CommunityFinder } from "@/components/story/CommunityFinder";
 import { LongView } from "@/components/viz/LongView";
 import { SurprisingStory } from "@/components/story/SurprisingStory";
 import { Explorer } from "@/components/story/Explorer";
 import { SourceNote, SuppressionNote } from "@/components/ui/Notes";
-import { getHistoricalTrends, getMunicipalities, getRegionSummary, getWards } from "@/lib/data";
-import { fmtPct, fmtX, fmtInt } from "@/lib/format";
+import { getHistoricalTrends, getMunicipalities, getOdFlows, getRegionSummary, getWards } from "@/lib/data";
+import { loadMapGeom } from "@/lib/od-map-server";
+import { fmtPct, fmtInt } from "@/lib/format";
 
 export const dynamic = "force-static";
 
 const CHAPTERS = [
   { id: "top", label: "Top" },
   { id: "meet-durham", label: "Meet Durham" },
+  { id: "local", label: "Mostly local" },
+  { id: "network", label: "Hidden network" },
+  { id: "your-community", label: "Your community" },
+  { id: "destination-mode", label: "Destination modes" },
   { id: "how-we-move", label: "How we move" },
   { id: "not-one-place", label: "Not one place" },
-  { id: "your-durham", label: "Your Durham" },
+  { id: "your-durham", label: "Ward profiles" },
   { id: "long-view", label: "The long view" },
   { id: "surprise", label: "The finding" },
   { id: "methodology", label: "Reading the data" },
@@ -31,6 +41,8 @@ export default function StoryPage() {
   const municipalitiesFile = getMunicipalities();
   const wardsFile = getWards();
   const trends = getHistoricalTrends();
+  const od = getOdFlows();
+  const geom = loadMapGeom();
 
   const r2022 = regionSummary.profiles.find((p) => p.surveyYear === 2022)!;
   const r2016 = regionSummary.profiles.find((p) => p.surveyYear === 2016)!;
@@ -89,10 +101,95 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* Chapter 2 — How We Move */}
+        {/* Chapter 2 — Most movement is local (the reveal) */}
+        <section id="local" className="dark-section dark-textured scroll-mt-8 border-t border-night-line/50" aria-labelledby="local-h">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="pt-20">
+              <p className="chapter-kicker">Chapter 2</p>
+              <h2 id="local-h" className="mt-3 max-w-[22ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-chalk">
+                Most movement is local
+              </h2>
+              <p className="prose-story mt-6">
+                Scroll through the sequence — it holds the survey&apos;s biggest surprise about how
+                Durham actually works.
+              </p>
+            </div>
+            <InternalReveal geom={geom} totals={od.totals} />
+            <SourceNote>
+              Source: 2022 TTS origin–destination tabulation via DMG iDRS (trips by members of Durham
+              households, expanded weekday estimates; Data Management Group, University of Toronto).
+            </SourceNote>
+          </div>
+        </section>
+
+        {/* Chapter 3 — Durham's hidden network */}
+        <section id="network" className="dark-section scroll-mt-8 border-t border-night-line/50" aria-labelledby="network-h">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <p className="chapter-kicker">Chapter 3</p>
+            <h2 id="network-h" className="mt-3 max-w-[24ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-chalk">
+              The borders aren&apos;t where movement stops
+            </h2>
+            <p className="prose-story mt-6">
+              Four in five trips stay in Durham — and a huge share cross municipal lines. Watch the
+              region&apos;s strongest travel connections appear, then explore the whole network.
+            </p>
+            <div className="mt-12">
+              <NetworkMap geom={geom} pairs={od.pairs} threshold={od.displayThreshold} />
+            </div>
+            <SourceNote>
+              Source: 2022 TTS origin–destination tabulation via DMG iDRS, aggregated to the eight area
+              municipalities. Lines show where trips begin and end — not the roads or transit routes used.
+            </SourceNote>
+          </div>
+        </section>
+
+        {/* Chapter 4 — Choose your community */}
+        <section id="your-community" className="scroll-mt-8" aria-labelledby="your-community-h">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <p className="chapter-kicker">Chapter 4</p>
+            <h2 id="your-community-h" className="mt-3 max-w-[22ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-ink">
+              Choose your community
+            </h2>
+            <p className="prose-story mt-6">
+              Every municipality has its own travel orbit — its own mix of local trips, cross-town
+              journeys, Toronto runs and beyond. Where do your community&apos;s weekday trips go?
+            </p>
+            <div className="mt-10">
+              <TravelOrbit geom={geom} profiles={od.profiles} />
+            </div>
+            <SourceNote>
+              Source: 2022 TTS origin–destination tabulation via DMG iDRS. Trips are attributed to the
+              municipality where they begin.
+            </SourceNote>
+          </div>
+        </section>
+
+        {/* Chapter 5 — Destination changes the mode (the morph) */}
+        <section id="destination-mode" className="dark-section dark-textured scroll-mt-8 border-t border-night-line/50" aria-labelledby="destination-mode-h">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <p className="chapter-kicker">Chapter 5</p>
+            <h2 id="destination-mode-h" className="mt-3 max-w-[24ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-chalk">
+              Where we&apos;re going changes how we get there
+            </h2>
+            <p className="prose-story mt-6">
+              Same households, same weekday — wildly different travel, depending on the destination.
+              Switch the context and watch the mix change.
+            </p>
+            <div className="mt-12">
+              <ModeMorph contexts={od.modeContexts} />
+            </div>
+            <SourceNote>
+              Source: 2022 TTS origin–destination by primary mode via DMG iDRS. “Transit” includes local
+              transit, GO rail, and combined GO + local trips; “Other” includes taxi, ride-hailing,
+              motorcycle, e-scooter and unclassified trips.
+            </SourceNote>
+          </div>
+        </section>
+
+        {/* Chapter 6 — How We Move */}
         <section id="how-we-move" className="dark-section scroll-mt-8 border-t border-night-line/50" aria-labelledby="how-we-move-h">
           <div className="mx-auto max-w-6xl px-6 py-20">
-            <p className="chapter-kicker">Chapter 2</p>
+            <p className="chapter-kicker">Chapter 6</p>
             <h2 id="how-we-move-h" className="mt-3 max-w-[22ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-chalk">
               How we move
             </h2>
@@ -115,15 +212,15 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* Chapter 3 — Durham Is Not One Place */}
+        {/* Chapter 7 — Durham Is Not One Place */}
         <section id="not-one-place" className="dark-section dark-textured scroll-mt-8 border-t border-night-line/50" aria-labelledby="not-one-place-h">
           <div className="mx-auto max-w-6xl px-6 py-20">
-            <p className="chapter-kicker">Chapter 3</p>
+            <p className="chapter-kicker">Chapter 7</p>
             <h2 id="not-one-place-h" className="mt-3 max-w-[24ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-chalk">
               Durham is not one place
             </h2>
             <p className="prose-story mt-6">
-              From Oshawa's downtown apartments to Uxbridge's country roads, the region's eight communities
+              From Oshawa&apos;s downtown apartments to Uxbridge&apos;s country roads, the region&apos;s eight communities
               move differently. Ajax leads the region in transit share of weekday trips at{" "}
               <strong>{fmtPct(municipalitiesFile.municipalities.find((m) => m.geographyId === "ajax")?.modeShares.transit.value)}</strong> —
               rural Uxbridge sits at {fmtPct(municipalitiesFile.municipalities.find((m) => m.geographyId === "uxbridge")?.modeShares.transit.value)}.
@@ -140,10 +237,10 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* Chapter 4 — Your Durham */}
+        {/* Chapter 8 — Your Durham */}
         <section id="your-durham" className="scroll-mt-8" aria-labelledby="your-durham-h">
           <div className="mx-auto max-w-6xl px-6 py-20">
-            <p className="chapter-kicker">Chapter 4</p>
+            <p className="chapter-kicker">Chapter 8</p>
             <h2 id="your-durham-h" className="mt-3 max-w-[22ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-ink">
               Your Durham
             </h2>
@@ -161,15 +258,15 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* Chapter 5 — The Long View */}
+        {/* Chapter 9 — The Long View */}
         <section id="long-view" className="dark-section dark-textured scroll-mt-8 border-t border-night-line/50" aria-labelledby="long-view-h">
           <div className="mx-auto max-w-6xl px-6 py-20">
-            <p className="chapter-kicker">Chapter 5</p>
+            <p className="chapter-kicker">Chapter 9</p>
             <h2 id="long-view-h" className="mt-3 max-w-[20ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-chalk">
               The long view: 1986 → 2022
             </h2>
             <p className="prose-story mt-6">
-              Durham's surveyed population has more than doubled since 1986 — from{" "}
+              Durham&apos;s surveyed population has more than doubled since 1986 — from{" "}
               <strong>{fmtInt(r1986.persons)}</strong> to {fmtInt(r2022.persons)} — and households have grown
               even faster. Choose a measure to see the whole series. Where survey methods changed, the chart
               says so plainly.
@@ -177,10 +274,19 @@ export default function StoryPage() {
             <div className="mt-10">
               <LongView trends={trends} />
             </div>
+            <ComparableBasis
+              year2016={{
+                transit: r2016.modeShares.transit.value,
+                walk: r2016.modeShares.walk.value,
+                autoDriver: r2016.modeShares.autoDriver.value,
+                tripsTotal: r2016.tripsTotal,
+              }}
+              comparable={od.comparable2022}
+            />
           </div>
         </section>
 
-        {/* Chapter 6 — One Surprising Story */}
+        {/* Chapter 10 — One Surprising Story */}
         <section id="surprise" className="dark-section scroll-mt-8 border-t border-night-line/50" aria-labelledby="surprise-h">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <SurprisingStory data={municipalitiesFile} region2016={r2016.workAtHomeShare.value ?? 0} />
@@ -191,10 +297,10 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* Chapter 7 — How to Read This */}
+        {/* Chapter 11 — How to Read This */}
         <section id="methodology" className="scroll-mt-8" aria-labelledby="methodology-h">
           <div className="mx-auto max-w-6xl px-6 py-20">
-            <p className="chapter-kicker">Chapter 7</p>
+            <p className="chapter-kicker">Chapter 11</p>
             <h2 id="methodology-h" className="mt-3 max-w-[22ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-ink">
               How to read this
             </h2>
@@ -202,7 +308,7 @@ export default function StoryPage() {
               <p>
                 <strong>The Transportation Tomorrow Survey (TTS)</strong> is a household travel survey run
                 every five or six years across the Greater Toronto and Hamilton Area since 1986. Households
-                record each member's travel for one weekday. Results are expanded to estimate everyone — they
+                record each member&apos;s travel for one weekday. Results are expanded to estimate everyone — they
                 are survey estimates, not counts.
               </p>
               <p>
@@ -212,7 +318,13 @@ export default function StoryPage() {
               <p>
                 <strong>2022 changed the rules.</strong> Trips were collected for ages 5 and up (previously 11+)
                 and walking was captured more completely. That is why 2022 trip totals and mode shares never
-                share a chart line with earlier cycles on this site.
+                share a chart line with earlier cycles on this site — and why the comparable-basis comparison
+                in the long view exists.
+              </p>
+              <p>
+                <strong>Lines, not roads.</strong> The travel connections shown in chapters 2–5 come from an
+                authorized origin–destination tabulation of the 2022 TTS. They show where trips begin and end —
+                not the streets or transit routes used.
               </p>
             </div>
             <div className="mt-8 flex flex-wrap gap-4">
@@ -226,10 +338,10 @@ export default function StoryPage() {
           </div>
         </section>
 
-        {/* Chapter 8 — Explore a Little More */}
+        {/* Chapter 12 — Explore a Little More */}
         <section id="explore" className="scroll-mt-8 border-t border-line" aria-labelledby="explore-h">
           <div className="mx-auto max-w-6xl px-6 py-20">
-            <p className="chapter-kicker">Chapter 8</p>
+            <p className="chapter-kicker">Chapter 12</p>
             <h2 id="explore-h" className="mt-3 max-w-[24ch] font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-tight text-ink">
               Explore a little more
             </h2>
@@ -255,8 +367,9 @@ function SiteFooter() {
         <div>
           <p className="font-display text-xl text-chalk">Durham in Motion</p>
           <p className="mt-2 max-w-[52ch] text-xs leading-relaxed text-chalk-dim">
-            Transportation Tomorrow Survey data: Data Management Group, University of Toronto. Additional
-            historical data: Government of Ontario. Calculations and visualizations by Durham in Motion.
+            Transportation Tomorrow Survey data: Data Management Group, University of Toronto
+            (public summaries and authorized iDRS origin–destination extracts). Additional historical
+            data: Government of Ontario. Calculations and visualizations by Durham in Motion.
             This is an independent public project and is not endorsed by or affiliated with the Data
             Management Group or the University of Toronto.
           </p>

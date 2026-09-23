@@ -123,10 +123,11 @@ export const SOURCES: SourceDef[] = [
 
   // ---- Authenticated iDRS extracts (drs.dmg.utoronto.ca) -------------------
   // Produced by interactive queries against the 2022 TTS trip table with the
-  // filter "Regional municipality of household in Durham". Full query strings,
-  // method notes and caveats: docs/idrs-data.md. Raw extracts are archived
-  // locally only; confirm redistribution terms with DMG before publishing them
-  // (or files derived from them) verbatim.
+  // filter "Regional municipality of household in Durham". Authorized for
+  // production use in derived, aggregated form — scope and conditions:
+  // docs/data-permissions.md. Full query strings and caveats: docs/idrs-data.md.
+  // Raw extracts are archived locally only (gitignored, checksummed); never
+  // republish them verbatim.
   {
     id: "tts-2022-idrs-od-pd",
     organization: DMG_ORG,

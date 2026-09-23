@@ -19,9 +19,10 @@ export default function MethodologyPage() {
         Methodology
       </h1>
       <p className="prose-story mt-6">
-        Everything on this site is built from public Transportation Tomorrow Survey (TTS) summary tables
-        published by the Data Management Group (DMG) at the University of Toronto. This page explains what
-        the data is, what we did to it, and where you should be careful.
+        Everything on this site is built from Transportation Tomorrow Survey (TTS) data published by the
+        Data Management Group (DMG) at the University of Toronto — public summary CSVs for most chapters,
+        plus authorized authenticated tabulations for the origin–destination stories. This page explains
+        what the data is, what we did to it, and where you should be careful.
       </p>
 
       <section className="mt-12 space-y-10">
@@ -46,6 +47,15 @@ export default function MethodologyPage() {
               data manifest
             </a>
             .
+          </p>
+          <p>
+            The origin–destination chapters (trips between communities, mode by destination, the 79%
+            internal-share reveal) additionally use four authenticated tabulations pulled through DMG&apos;s
+            iDRS service from the 2022 TTS trip table, filtered to trips by members of Durham households,
+            with expansion factors applied. The project owner is an authorized practitioner who received
+            permission to use these extracts in this application; the scope of that authorization is{" "}
+            recorded in the repository&apos;s data-permissions record. Like every other number on the
+            site, all figures derived from them are computed at build time by a documented pipeline.
           </p>
         </Block>
 
@@ -108,7 +118,53 @@ export default function MethodologyPage() {
               employed residents. The 1986 region value is approximate because its part-time-at-home cell
               was suppressed.
             </li>
+            <li>
+              In the OD chapters, &quot;Durham&quot; means the eight area municipalities, and trips belong
+              to a municipality based on where they <em>begin</em>. &quot;Trips made by Durham residents&quot;
+              means trips by members of Durham households, wherever those trips start.
+            </li>
           </ul>
+        </Block>
+
+        <Block title="Travel connections (desire lines)">
+          <p>
+            The connection maps in chapters 2–5 draw <em>desire lines</em>: straight-or-arc strokes between
+            community midpoints whose thickness follows the number of trips (on a square-root scale so
+            small and large corridors stay legible). A desire line says nothing about the route — people
+            travelling between Whitby and Oshawa may drive the 401, take Kingston Road, ride DRT or GO, or
+            anything else. We never place these lines along specific roads, and we never animate vehicles
+            along real streets, because the survey does not record paths.
+          </p>
+          <ul className="list-disc space-y-2 pl-6">
+            <li>
+              <strong>Display threshold:</strong> connections below 1,000 expanded weekday trips are
+              omitted from the map and lists for readability. Totals and percentages are always computed
+              from the complete data — hiding a line never changes a number.
+            </li>
+            <li>
+              <strong>Reconciliation:</strong> the OD tabulation totals 1,440,137 trips versus 1,440,149
+              in the public summaries (a 12-trip query residue, ≈0.001%). The mode-by-destination extract
+              is a further 9 trips short (trips with no stated mode). We document these instead of forcing
+              them to match.
+            </li>
+            <li>
+              <strong>iDRS output carries no suppression markers</strong> (unlike the public CSVs&apos;
+              asterisks). Small flows are still small survey samples — hence the display threshold.
+            </li>
+          </ul>
+        </Block>
+
+        <Block title="The comparable-basis 2022 comparison">
+          <p>
+            The long view&apos;s 2016 ↔ 2022 comparison uses a 2022 extract filtered to{" "}
+            <code className="rounded bg-paper-dim px-1">excl2016 = 0</code> — DMG&apos;s flag for records
+            collected on a basis comparable with 2016 and earlier cycles. This matters most for walking:
+            full-basis 2022 walking (120,195 trips, 8.3%) uses the new fuller capture, while the
+            comparable extract records 67,089 walking trips (5.2%). Full-basis 2022 figures are never
+            placed on a chart line with earlier cycles anywhere on this site. Note that the comparable
+            2022 comparison still describes a post-pandemic travel environment; the survey alone cannot
+            attribute causes.
+          </p>
         </Block>
 
         <Block title="Known limitations">
@@ -122,10 +178,8 @@ export default function MethodologyPage() {
               only, and the public ward files are more heavily suppressed than municipal ones.
             </li>
             <li>
-              The site presents origin-destination behaviour only through published summaries; no public
-              machine-readable OD matrix was available (see{" "}
-              <Link href="/sources/" className="underline decoration-accent underline-offset-2">sources</Link>
-              ).
+              The OD chapters describe 2022 only. No comparable OD matrix is published for earlier
+              cycles, so nothing there can be trended over time.
             </li>
           </ul>
         </Block>

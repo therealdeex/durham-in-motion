@@ -1,5 +1,79 @@
 /** Types for the curated public data files in /public/data. */
 
+export type OdModeGroup = "drive" | "ride" | "transit" | "walk" | "cycle" | "schoolBus" | "other";
+
+export interface OdPairFlow {
+  a: string;
+  b: string;
+  aToB: number;
+  bToA: number;
+  totalTwoWay: number;
+}
+
+export interface OdDestinationFlow {
+  destinationId: string;
+  destinationName: string;
+  group: "same" | "durham" | "toronto" | "outside";
+  groupLabel: string;
+  trips: number;
+  share: number;
+}
+
+export interface OdMunicipalityProfile {
+  id: string;
+  name: string;
+  originTrips: number;
+  destinationTrips: number;
+  sameMunicipality: number;
+  elsewhereInDurham: number;
+  toronto: number;
+  otherExternal: number;
+  orbitShares: { same: number; durham: number; toronto: number; outside: number };
+  topDestinations: OdDestinationFlow[];
+  modeGroupShares: Record<OdModeGroup, number>;
+  modeGroupTrips: Record<OdModeGroup, number>;
+}
+
+export interface OdDestinationProfile {
+  id: string;
+  name: string;
+  trips: number;
+  fromDurham: number;
+  fromToronto: number;
+  fromOutside: number;
+}
+
+export interface OdModeContext {
+  key: string;
+  label: string;
+  description: string;
+  trips: number;
+  groups: Record<OdModeGroup, number>;
+}
+
+export interface OdFlows {
+  generatedAt: string;
+  provenance: Record<string, string | boolean | string[]>;
+  modeGroups: Record<OdModeGroup, string>;
+  totals: {
+    allTrips: number;
+    internalTrips: number;
+    internalShare: number;
+    toToronto: number;
+    fromToronto: number;
+    toOutside: number;
+    durhamOriginTrips: number;
+  };
+  pairs: OdPairFlow[];
+  profiles: OdMunicipalityProfile[];
+  destinationProfiles: OdDestinationProfile[];
+  modeContexts: OdModeContext[];
+  comparable2022: { total: number; modes: Record<string, number>; groups: Record<OdModeGroup, number> };
+  full2022Modes: { total: number; modes: Record<string, number> };
+  displayThreshold: number;
+  matrix: { columns: string[]; values: number[][] };
+}
+
 export type ShareStatus = "observed" | "suppressed" | "not_available" | "missing" | "partial";
 
 export interface Share {

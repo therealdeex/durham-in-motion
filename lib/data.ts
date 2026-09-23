@@ -9,6 +9,7 @@ import type {
   HistoricalTrends,
   Manifest,
   MunicipalitiesFile,
+  OdFlows,
   Profile,
   RegionSummary,
   WardsFile,
@@ -24,6 +25,7 @@ export const getRegionSummary = () => readJson<RegionSummary>("region-summary.js
 export const getHistoricalTrends = () => readJson<HistoricalTrends>("historical-trends.json");
 export const getMunicipalities = () => readJson<MunicipalitiesFile>("planning-districts-2022.json");
 export const getWards = () => readJson<WardsFile>("wards-2022.json");
+export const getOdFlows = () => readJson<OdFlows>("od-flows.json");
 export const getManifest = () => readJson<Manifest>("manifest.json");
 export const getGeographies = () =>
   readJson<{ generatedAt: string; geographies: GeographyEntry[] }>("geographies.json");

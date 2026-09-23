@@ -18,3 +18,10 @@ data/intermediate/
 # Environment / OS
 .env*
 .DS_Store
+
+# Credential hygiene (iDRS access artifacts must never enter Git)
+cookies*
+session*
+browser-profile/
+auth/
+playwright/.auth/

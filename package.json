@@ -14,9 +14,11 @@
     "data:inspect": "tsx scripts/inspect-data.ts",
     "data:normalize": "tsx scripts/normalize-data.ts",
     "data:geography": "tsx scripts/process-geography.ts",
+    "data:od": "tsx scripts/build-od-data.ts",
+    "data:od-findings": "tsx scripts/analyze-od.ts",
     "data:story": "tsx scripts/build-story-data.ts",
     "data:findings": "tsx scripts/find-findings.ts",
-    "data:all": "npm run data:manifest && npm run data:fetch && npm run data:normalize && npm run data:geography && npm run data:story && npm run data:findings && npm run data:inspect",
+    "data:all": "npm run data:manifest && npm run data:fetch && npm run data:normalize && npm run data:geography && npm run data:od && npm run data:story && npm run data:findings && npm run data:inspect",
     "test": "node --import tsx --test \"tests/data/*.test.ts\""
   },
   "dependencies": {

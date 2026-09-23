@@ -1,10 +1,13 @@
 # iDRS data extracts (authenticated)
 
 On 2026-09-23 we used Shahram's DMG iDRS account (drs.dmg.utoronto.ca) to pull four
-machine-readable extracts that the public DMG CSV downloads cannot provide. The v1
-rule — *the public site must not depend on authenticated access* — still holds: these
-files are development inputs for Phase 2, archived under `data/raw/idrs/`
-(gitignored, checksummed via `scripts/lib/sources.ts` → `public/data/manifest.json`).
+machine-readable extracts that the public DMG CSV downloads cannot provide. **These
+extracts are authorized for production use** within the scope recorded in
+`docs/data-permissions.md`: derived, aggregated displays with attribution. The v1
+rule — *the site must not depend on authenticated access at runtime* — still holds:
+ETL runs offline on the archived extracts under `data/raw/idrs/` (gitignored,
+checksummed via `scripts/lib/sources.ts` → `public/data/manifest.json`); nothing in
+the deployed site queries iDRS.
 
 ## Access method
 
@@ -66,10 +69,9 @@ plain text with a provenance preamble before the `Table:` line.
    the surveyed area). DMG typos persist in labels (e.g. `Kawartha Lakes)`).
 4. **No suppression markers** appear in iDRS output (unlike the public CSVs' `*`).
    Small cells are still small samples; apply the same <4-observation caution.
-5. **Redistribution**: the public extracts fall under DMG's Open Data Licence;
-   authenticated iDRS output may have narrower terms. Before publishing these files
-   (or verbatim derivatives), confirm with DMG. Publishing *derived, aggregated*
-   displays with attribution is the pattern the site already follows.
+5. **Redistribution**: the extracts are authorized for this project's derived,
+   aggregated displays (see `docs/data-permissions.md`). Do not republish the raw
+   files themselves; re-run the documented queries instead.
 
 ## Reproduction
 

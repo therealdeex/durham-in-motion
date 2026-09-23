@@ -1,8 +1,8 @@
 # iDRS data extracts (authenticated)
 
-On 2026-09-23 we used Shahram's DMG iDRS account (drs.dmg.utoronto.ca) to pull four
+On 2026-09-23 we used an authorized DMG iDRS account (drs.dmg.utoronto.ca) to pull four
 machine-readable extracts that the public DMG CSV downloads cannot provide. **These
-extracts are authorized for production use** within the scope recorded in
+extracts are used within the scope recorded in
 `docs/data-permissions.md`: derived, aggregated displays with attribution. The v1
 rule — *the site must not depend on authenticated access at runtime* — still holds:
 ETL runs offline on the archived extracts under `data/raw/idrs/` (gitignored,

@@ -21,7 +21,7 @@ extracted deterministically into an aggregate OD dataset (`ODFlow`-shaped) for d
    source file and checksum, with no manual repair.
 3. The iDRS (authenticated Data Retrieval System) provides machine-readable OD data, but requires a
    registered academic/municipal account. The MVP deliberately uses only unauthenticated public data.
-   **Resolved 2026-09-23**: with Shahram's iDRS account we pulled a Durham-resident PD×PD matrix
+   **Resolved 2026-09-23**: with an authorized iDRS account we pulled a Durham-resident PD×PD matrix
    (100×103) and a by-mode variant; both reconcile with the public trip totals (see
    `docs/idrs-data.md`). Phase 2 can build the desire-line layer on these.
 
